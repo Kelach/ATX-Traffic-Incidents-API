@@ -112,12 +112,14 @@ def incidents():
     elif request.method == 'POST':
         try:
             the_json = requests.get(url = source_url).json()
-            data = the_json # @TODO check if any manipulation is needed here
+            cols = []
+            for col_json in the_json['meta']['view']['columns']:
+                cols.append(col_json['fieldName'].replace(':', ''))
+            data = the_json['data']
             for datum in data:
-                key = datum['traffic_report_id']
-                subkeys = datum.keys()
-                for subkey in subkeys:
-                    rd.hset(key, subkey, item[subkey])
+                key = datum[cols.index('traffic_report_id')]
+                for ii in range(0, len(cols)):
+                    rd.hset(key, cols[ii], datum[ii])
             return 'Data successfully posted', 200
         except Exception as e:
             print(f'ERROR: unable to post data\n{e}')
