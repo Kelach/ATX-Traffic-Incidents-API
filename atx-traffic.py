@@ -6,8 +6,8 @@ from flask import Flask, request
 
 
 
-source_url = 'TBD'
-redis_url = 'TBD'
+source_url = 'https://data.austintexas.gov/api/views/dx9v-zd7x/rows.json?accessType=DOWNLOAD'
+redis_url = '127.0.0.1'
 redis_port = 6379
 redis_db = 0
 flask_url = '0.0.0.0'
@@ -17,7 +17,7 @@ flask_port = 5000
 
 
 
-def get_redis_client(the_url: str, the_port: int, the_db: int) -> Redis:
+def get_redis_client(the_url: str, the_port: int, the_db: int) -> redis.Redis:
     """Returns the Redis database client.
     This function returns a Redis object permitting access to a Redis client
     via 127.0.0.1:6379. The object specifically manipulates database 0. It is
@@ -119,6 +119,8 @@ def incidents():
             for datum in data:
                 key = datum[cols.index('traffic_report_id')]
                 for ii in range(0, len(cols)):
+                    if datum[ii] == None:
+                        datum[ii] = ''
                     rd.hset(key, cols[ii], datum[ii])
             return 'Data successfully posted', 200
         except Exception as e:
