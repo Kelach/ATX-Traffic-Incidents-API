@@ -140,7 +140,66 @@ def incidents():
 
 # routes to help people form queries
 # /ids
+@app.route('/ids', methods = ['GET'])
+def ids():
+    """/ids endpoint
+
+    This function returns a list of all incident IDs in the database. If there
+    is an error, a descriptive string will be returned with a 404 status code.
+
+    Args:
+        None
+
+    Returns:
+        A list of all incident IDs as strings.
+    """
+    global rd
+    try:
+        result = []
+        keys = rd.keys()
+        for key in keys:
+            result.append(rd.hget(key, 'traffic_report_id'))
+        return result
+    except Exception as e:
+        print(f'ERROR: unable to get IDs\n{e}')
+        return f'ERROR: unable to get IDs', 400
+
+
+
+
+
 # /issues
+@app.route('/issues', methods = ['GET'])
+def issues():
+    """/issues endpoint
+
+    This function returns a list of all unique issues reported in the
+    database. If there is an error, a descriptive string will be returned with
+    a 404 status code. 
+
+    Args:
+        None
+
+    Returns:
+        A list of all incident issues as strings.
+    """
+    global rd
+    try:
+        result = []
+        keys = rd.keys()
+        for key in keys:
+            value = rd.hget(key, 'issue_reported')
+            if value not in result:
+                result.append(value)
+        return result
+    except Exception as e:
+        print(f'ERROR: unable to get IDs\n{e}')
+        return f'ERROR: unable to get IDs', 400
+
+
+
+
+
 # /published-range
 # /reported-range
 # /coordinates-range
