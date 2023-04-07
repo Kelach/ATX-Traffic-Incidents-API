@@ -293,11 +293,15 @@ def incidents():
                 incident = rd.hgetall(key)
                 # query parameter filtering
 
+                # filter by offest
+                if params["offset"] > 0:
+                    params["offset"] -= 1
+                    continue
                 # filtering by incident type
                 if params["incident_type"].lower() != "all" and incident["issue_reported"].lower() != params["incident_type"].lower():
                     continue
                 # filtering by incident status
-                elif params["status"] != "both" and incident["traffic_report_status"] != params["status"]:
+                elif params["status"].lower() != "both" and incident["traffic_report_status"].lower() != params["status"].lower():
                     continue
                 # filtering by time range
                 elif not (get_seconds(params["start_date"]) <= float(incident["created_at"]) <= get_seconds(params["end_date"])):
@@ -314,7 +318,7 @@ def incidents():
                 elif len(data) >= params["limit"]:
                     break
                 data.append(rd.hgetall(key))
-            return data[params["offset"]:] # offsetting data by 
+            return data 
         except Exception as e:
             print(f'ERROR: unable to get data\n{e}')
             return f'ERROR: unable to get data\n', 400
