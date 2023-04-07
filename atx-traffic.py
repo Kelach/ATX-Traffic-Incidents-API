@@ -5,7 +5,9 @@ from flask import Flask, request
 
 
 
-
+########################
+### GLOBAL VARIABLES ###
+########################
 source_url = 'https://data.austintexas.gov/api/views/dx9v-zd7x/rows.json?accessType=DOWNLOAD'
 redis_url = '127.0.0.1'
 redis_port = 6379
@@ -48,16 +50,20 @@ rd = get_redis_client(redis_url, redis_port, redis_db)
 @app.route('/', methods = ['GET'])
 def nil():
     """/ endpoint
+    Description
+    -----------
 
     Thus function returns the default endpoint.
 
     Args:
+    -----------
         None
 
     Returns:
+    -----------
         An welcome string.
     """
-    return 'Welcome to atx-traffic!';
+    return 'Welcome to atx-traffic!'
 
 
 
@@ -76,16 +82,20 @@ def nil():
 @app.route('/incidents', methods = ['GET', 'POST', 'DELETE'])
 def incidents():
     """/incidents endpoint
-
+    
+    Description
+    -----------
     This function either returns incident data, subject to certain query
     parameters, updates the database with the latest source data, or clears
     the database, depending on if the HTTP request method is GET, POST, or
     DELETE, respectively.
 
     Args:
+    -----------
         None
 
     Returns:
+    -----------
         If the method is GET, a list of dictionaries representing each entry in
             the database. If there is an error, a descriptive string will be
             returned with a 404 status code. Note that sparse attributes are
@@ -143,14 +153,17 @@ def incidents():
 @app.route('/ids', methods = ['GET'])
 def ids():
     """/ids endpoint
-
+    Description
+    -----------
     This function returns a list of all incident IDs in the database. If there
     is an error, a descriptive string will be returned with a 404 status code.
 
     Args:
+    -----------
         None
 
     Returns:
+    -----------
         A list of all incident IDs as strings.
     """
     global rd
@@ -173,11 +186,14 @@ def ids():
 def issues():
     """/issues endpoint
 
+    Description
+    -----------
     This function returns a list of all unique issues reported in the
     database. If there is an error, a descriptive string will be returned with
     a 404 status code. 
 
     Args:
+    -----------
         None
 
     Returns:
