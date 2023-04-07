@@ -292,7 +292,6 @@ def incidents():
             for key in keys:
                 incident = rd.hgetall(key)
                 # query parameter filtering
-
                 # filter by offest
                 if params["offset"] > 0:
                     params["offset"] -= 1
