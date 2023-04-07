@@ -286,7 +286,6 @@ def incidents():
     if request.method == 'GET':
         params = get_query_params()
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
-        print("params: ", params) 
         try:
             data = []
             keys = rd.keys()
@@ -301,7 +300,7 @@ def incidents():
                 elif params["status"] != "both" and incident["traffic_report_status"] != params["status"]:
                     continue
                 # filtering by time range
-                elif not (get_seconds(params["start_date"]) <= incident["created_at"] <= get_seconds(params["end_date"])):
+                elif not (get_seconds(params["start_date"]) <= float(incident["created_at"]) <= get_seconds(params["end_date"])):
                     continue
                 # filtering by location/boundary (long and lat only)
                 elif is_in_bounds(check_address=False, 
