@@ -5,9 +5,11 @@ from flask import Flask, request
 
 
 
-
-source_url = 'TBD'
-redis_url = 'TBD'
+########################
+### GLOBAL VARIABLES ###
+########################
+source_url = 'https://data.austintexas.gov/api/views/dx9v-zd7x/rows.json?accessType=DOWNLOAD'
+redis_url = '127.0.0.1'
 redis_port = 6379
 redis_db = 0
 flask_url = '0.0.0.0'
@@ -79,16 +81,20 @@ rd = get_redis_client(redis_url, redis_port, redis_db)
 @app.route('/', methods = ['GET'])
 def nil():
     """/ endpoint
+    Description
+    -----------
 
     Thus function returns the default endpoint.
 
     Args:
+    -----------
         None
 
     Returns:
+    -----------
         An welcome string.
     """
-    return 'Welcome to atx-traffic!';
+    return 'Welcome to atx-traffic!'
 
 
 
@@ -107,16 +113,20 @@ def nil():
 @app.route('/incidents', methods = ['GET', 'POST', 'DELETE'])
 def incidents():
     """/incidents endpoint
-
+    
+    Description
+    -----------
     This function either returns incident data, subject to certain query
     parameters, updates the database with the latest source data, or clears
     the database, depending on if the HTTP request method is GET, POST, or
     DELETE, respectively.
 
     Args:
+    -----------
         None
 
     Returns:
+    -----------
         If the method is GET, a list of dictionaries representing each entry in
             the database. If there is an error, a descriptive string will be
             returned with a 404 status code. Note that sparse attributes are
@@ -150,6 +160,8 @@ def incidents():
             for datum in data:
                 key = datum[cols.index('traffic_report_id')]
                 for ii in range(0, len(cols)):
+                    if datum[ii] == None:
+                        datum[ii] = ''
                     rd.hset(key, cols[ii], datum[ii])
             return 'Data successfully posted', 200
         except Exception as e:
@@ -169,7 +181,72 @@ def incidents():
 
 # routes to help people form queries
 # /ids
+@app.route('/ids', methods = ['GET'])
+def ids():
+    """/ids endpoint
+    Description
+    -----------
+    This function returns a list of all incident IDs in the database. If there
+    is an error, a descriptive string will be returned with a 404 status code.
+
+    Args:
+    -----------
+        None
+
+    Returns:
+    -----------
+        A list of all incident IDs as strings.
+    """
+    global rd
+    try:
+        result = []
+        keys = rd.keys()
+        for key in keys:
+            result.append(rd.hget(key, 'traffic_report_id'))
+        return result
+    except Exception as e:
+        print(f'ERROR: unable to get IDs\n{e}')
+        return f'ERROR: unable to get IDs', 400
+
+
+
+
+
 # /issues
+@app.route('/issues', methods = ['GET'])
+def issues():
+    """/issues endpoint
+
+    Description
+    -----------
+    This function returns a list of all unique issues reported in the
+    database. If there is an error, a descriptive string will be returned with
+    a 404 status code. 
+
+    Args:
+    -----------
+        None
+
+    Returns:
+        A list of all incident issues as strings.
+    """
+    global rd
+    try:
+        result = []
+        keys = rd.keys()
+        for key in keys:
+            value = rd.hget(key, 'issue_reported')
+            if value not in result:
+                result.append(value)
+        return result
+    except Exception as e:
+        print(f'ERROR: unable to get IDs\n{e}')
+        return f'ERROR: unable to get IDs', 400
+
+
+
+
+
 # /published-range
 # /reported-range
 # /coordinates-range
