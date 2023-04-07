@@ -167,15 +167,15 @@ def get_query_params() -> dict:
         return (message_payload(f"Invalid 'end' input parameter: {e}", False, 404), 404)
     # longitude + latitude
     try:
-        longitude = float(request.args.get("lgt", -97.8961686)) # default to None longitude
-        lattitude = float(request.args.get("lat", 30.3079823)) # defualt to None lattitude   
+        longitude = float(request.args.get("lgt", -97.8961686)) # default to longitude
+        lattitude = float(request.args.get("lat", 30.3079823)) # defualt to lattitude   
     except ValueError:
         return (message_payload(f"Error: longitude and latitude coordinates must be numbers only.", False, 404), 404)
     except Exception as e:
         return (message_payload(f"Error getting longitude and latitude parameters: {e}", False, 404), 404)
     finally:
-        if (not -90 >= lattitude >= 90
-            or -180 >= longitude >180):
+        if (not -90 <= lattitude <= 90
+            or -180 <= longitude <= 180):
             msg = f"Error: longitude and latitude coordinates must be within the ranges -90 <-> 90 and -180 <-> 180 respectively"
             return (message_payload(msg, False, 404), 404)
     # offset + limit
