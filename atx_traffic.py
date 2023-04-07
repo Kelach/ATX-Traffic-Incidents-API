@@ -286,6 +286,7 @@ def incidents():
     if request.method == 'GET':
         params = get_query_params()
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
+        print("params: ", params) 
         try:
             data = []
             keys = rd.keys()
