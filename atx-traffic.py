@@ -14,9 +14,9 @@ flask_url = '0.0.0.0'
 flask_port = 5000
 
 
-
-
-
+########################
+### HELPER FUNCTIONS ###
+########################
 def get_redis_client(the_url: str, the_port: int, the_db: int) -> Redis:
     """Returns the Redis database client.
     This function returns a Redis object permitting access to a Redis client
@@ -26,7 +26,38 @@ def get_redis_client(the_url: str, the_port: int, the_db: int) -> Redis:
     return redis.Redis(host = the_url, port = the_port, db = the_db, \
             decode_responses = True)
 
+def get_query_parameters(map:dict)-> dict:
+    '''
+    Description
+    -----------
+        - Helper function to retrieve all main query parameters with error handling
+    Args
+    -----------
+        - map: Dictionary object. The keys should denote the value 
+    Retuns
+    
+    -----------
+        - Returns a dictionary with values to the following keys:
+            - "incident_type", "status", "radius", "date_range", "time_range"
+                "address", "longitude", "latitude", "limit", "offest"
+    '''
 
+    incident_type = 
+    status = 
+    radius = 
+    date_range = 
+    time_range = 
+
+    # get incident_type
+    # get status
+    # get radius
+    # get data_range
+    # get time_range
+    # get address
+    # get longitude
+    # get latitude
+    # get limit
+    # get offset
 
 
 
