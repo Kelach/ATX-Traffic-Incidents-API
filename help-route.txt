@@ -1,0 +1,27 @@
+Routes: 
+
+/ : returns a welcoming message 
+
+/help: returns description of each route
+
+/incidents: DEALS with data depending on the method called -- change the word deals
+
+   Possible Methods: 
+
+     1. POST: initializes data 
+     2. GET: returns data 
+     3. DELETE: deletes data 
+
+/incident/<type>: returns list of all incidents of a given incident type
+
+/incident/<status>: returns list of incidents of a given status: active or archived
+
+/incident/ids: returns list of all incident identification number
+
+/incident/<epoch>: returns incident given at a specific time
+
+/incident/<epoch>/location: returns precise location of accident at a given epoch
+
+/epoch: returns list of epochs 
+
+/at?radius=XXX&address=XXX: returns most recent incidents within a radius of a given address

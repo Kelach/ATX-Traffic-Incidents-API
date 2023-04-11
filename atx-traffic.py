@@ -17,7 +17,7 @@ flask_port = 5000
 
 
 
-def get_redis_client(the_url: str, the_port: int, the_db: int) -> Redis:
+def get_redis_client(the_url: str, the_port: int, the_db: int):
     """Returns the Redis database client.
     This function returns a Redis object permitting access to a Redis client
     via 127.0.0.1:6379. The object specifically manipulates database 0. It is
@@ -59,8 +59,22 @@ def nil():
     """
     return 'Welcome to atx-traffic!';
 
+@app.route('/help', methods = ['GET'])
+def help_me():
 
+ """
+ returns description of each route
 
+ Args:
+   none
+
+ Returns:
+   a string
+ """
+ with open('help-route.txt') as f:
+   line = f.read()
+   line = line.strip()
+ return line
 
 
 # /incidents GET POST DELETE with optional query refinement parameters
