@@ -48,6 +48,10 @@ def get_redis_client(the_url: str, the_port: int, the_db: int) -> redis:
     return redis.Redis(host = the_url, port = the_port, db = the_db, \
             decode_responses = True)
 
+
+
+
+
 def get_seconds(time_string) -> float:
     '''
     Description:
@@ -71,6 +75,10 @@ def get_seconds(time_string) -> float:
     time_string += default_time[offset:]
 
     return time.mktime(time.strptime(time_string, '%Y-%m-%dT%H:%M:%S'))
+
+
+
+
 
 def is_in_bounds(**kwargs)->bool:
     '''
@@ -120,6 +128,9 @@ def is_in_bounds(**kwargs)->bool:
         print("Error calculating distance between two points: {e}")
         raise(e)
     return distance <= kwargs["radius_range"]
+
+
+
 
 
 def get_query_params() -> dict:
@@ -192,9 +203,6 @@ def get_query_params() -> dict:
         
     # need to check address, but may not include addresses at all
     address = request.args.get("address", None) # default None address
-    
-    
-
     return {"incident_type":incident_type,
             "status":status,
             "radius":radius,
@@ -236,7 +244,7 @@ def nil():
 
     Returns:
     -----------
-        An welcome string.
+        A welcome string.
     """
     return 'Welcome to atx-traffic!'
 
@@ -288,8 +296,7 @@ def incidents():
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
         try:
             data = []
-            keys = rd.keys()
-            for key in keys:
+            for key in rd.keys():
                 incident = rd.hgetall(key)
                 # query parameter filtering
                 # filter by offest
@@ -303,7 +310,7 @@ def incidents():
                 elif params["status"].lower() != "both" and incident["traffic_report_status"].lower() != params["status"].lower():
                     continue
                 # filtering by time range
-                elif not (get_seconds(params["start_date"]) <= float(incident["created_at"]) <= get_seconds(params["end_date"])):
+                elif not (get_seconds(params["start_date"]) <= float(incident["published_date"]) <= get_seconds(params["end_date"])):
                     continue
                 # filtering by location/boundary (long and lat only)
                 elif is_in_bounds(check_address=False, 
@@ -325,15 +332,25 @@ def incidents():
         try:
             the_json = requests.get(url = source_url).json()
             cols = []
+            flags = []
             for col_json in the_json['meta']['view']['columns']:
                 cols.append(col_json['fieldName'].replace(':', ''))
+                flags.append(col_json.get('flags'))
             data = the_json['data']
+            jj = 0 # Only for indexing purposes
+            print('ending col loop, starting datum loop')
             for datum in data:
                 key = datum[cols.index('traffic_report_id')]
                 for ii in range(0, len(cols)):
                     if datum[ii] == None:
                         datum[ii] = ''
-                    rd.hset(key, cols[ii], datum[ii])
+                    # Data cleaning
+                    # Restrict columns to non-hidden ones
+                    if flags[ii] is None or 'hidden' not in flags[ii]:
+                        rd.hset(key, cols[ii], datum[ii])
+                jj = jj + 1
+                if jj % 1000 == 0:
+                    print(f'{jj} entries posted')
             return 'Data successfully posted\n', 200
         except Exception as e:
             print(f'ERROR: unable to post data\n{e}')
@@ -371,8 +388,7 @@ def ids():
     global rd
     try:
         result = []
-        keys = rd.keys()
-        for key in keys:
+        for key in rd.keys():
             result.append(rd.hget(key, 'traffic_report_id'))
         return result
     except Exception as e:
@@ -404,8 +420,7 @@ def issues():
     global rd
     try:
         result = []
-        keys = rd.keys()
-        for key in keys:
+        for key in rd.keys():
             value = rd.hget(key, 'issue_reported')
             if value not in result:
                 result.append(value)
@@ -419,8 +434,137 @@ def issues():
 
 
 # /published-range
-# /reported-range
+@app.route('/published-range', methods = ['GET'])
+def published_range():
+    """/published-range endpoint
+
+    Description
+    -----------
+    This function returns the minimum and maximum published dates in the
+    database. If there is an error, a descriptive string will be returned with
+    a 404 status code.
+
+    Args:
+    ----------
+        None
+
+    Returns:
+    ----------
+        The minimum and maximum published dates as a dictionary, entitled min
+        and max, respectively.
+    """
+    global rd
+    try:
+        the_min = float('inf')
+        the_max = float('-inf')
+        for key in rd.keys():
+            value = int(rd.hget(key, 'published_date'))
+            if value < the_min:
+                the_min = value
+            if value > the_max:
+                the_max = value
+        return {'min' : the_min, 'max' : the_max}
+    except Exception as e:
+        print(f'ERROR: unable to get published range\n{e}')
+        return f'ERROR: unable to get published range', 400
+
+
+
+
+
+# /updated-range
+@app.route('/updated-range', methods = ['GET'])
+def updated_range():
+    """/updated-range endpoint
+
+    Description
+    -----------
+    This function returns the minimum and maximum updated dates in the
+    database. If there is an error, a descriptive string will be returned with
+    a 404 status code.
+
+    Args:
+    ----------
+        None
+
+    Returns:
+    ----------
+        The minimum and maximum updated dates as a dictionary, entitled min
+        and max, respectively.
+    """
+    global rd
+    try:
+        the_min = float('inf')
+        the_max = float('-inf')
+        for key in rd.keys():
+            value = int(rd.hget(key, 'traffic_report_status_date_time'))
+            if value < the_min:
+                the_min = value
+            if value > the_max:
+                the_max = value
+        return {'min' : the_min, 'max' : the_max}
+    except Exception as e:
+        print(f'ERROR: unable to get updated range\n{e}')
+        return f'ERROR: unable to get updated range', 400
+
+
+
+
+
 # /coordinates-range
+@app.route('/coordinates-range', methods = ['GET'])
+def coordinates_range():
+    """/coordinates-range endpoint
+
+    Description
+    -----------
+    This function returns the minimum and maximum coordinates in the
+    database. If there is an error, a descriptive string will be returned with
+    a 404 status code.
+
+    Args:
+    ----------
+        None
+
+    Returns:
+    ----------
+        The minimum and maximum latitudes and longitudes as a dictionary,
+        grouped first by coordinate type, then min or max.
+    """
+    global rd
+    try:
+        min_lat = float('inf')
+        max_lat = float('-inf')
+        min_lon = float('inf')
+        max_lon = float('-inf')
+        for key in rd.keys():
+            lat = rd.hget(key, 'latitude')
+            lon = rd.hget(key, 'longitude')
+            try:
+                lat = float(lat)
+                lon = float(lon)
+            except:
+                continue
+            if lat < min_lat:
+                min_lat = lat
+            if lat > max_lat:
+                max_lat = lat
+            if lon < min_lon:
+                min_lon = lon
+            if lon > max_lon:
+                max_lon = lon
+        return { \
+                'lat' : {'min' : min_lat, 'max' : max_lat}, \
+                'lon' : {'min' : min_lon, 'max' : max_lon} \
+                }
+    except Exception as e:
+        print(f'ERROR: unable to get coordinates range\n{e}')
+        return f'ERROR: unable to get coordinates range', 400
+
+
+
+
+
 # /addresses ... way they're recorded is irrecular
 # /statuses
 # /plot/dotmap
