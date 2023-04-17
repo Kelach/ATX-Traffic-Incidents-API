@@ -40,15 +40,10 @@ def execute_job(jid):
             update_job_status(jid, "failed")
             return
     update_job_status(jid, "completed", job)
-    # fill in ...
-    # the basic steps are:
-    # 1) get job id from message and update job status to indicate that the job has started
-    # 2) start the analysis job and monitor it to completion.
-    # 3) update the job status to indicate that the job has finished.
 
-    def post_plot():
-        # may need to implement time limits
-        '''
-        Function to upload images to imgur. 
-        Returns dictionary object including link to uploaded image
-        '''
+def post_plot():
+    # may need to implement time limits
+    '''
+    Function to upload images to imgur. 
+    Returns dictionary object including link to uploaded image
+    '''
