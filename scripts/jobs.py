@@ -69,4 +69,3 @@ def get_job_by_id(jid):
     global rd
     return rd.hget(jid)
 
-add_job("Today","plot", "Yesterday")
