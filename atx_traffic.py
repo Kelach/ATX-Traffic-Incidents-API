@@ -566,13 +566,15 @@ def coordinates_range():
 
 @app.route("/jobs/plot", methods=["POST"])
 def make_plot():
-    # use query paremeters to get plot kind
+    # @TODO
     # function to make timeseries, heatmap, and dotmap plots
+    # *use query paremeters to get plot kind*
     pass
 
 app.route("/jobs/plot/<jid>", methods=["GET"])
 def get_plot(jid):
-    # function to get specific plot
+    # @TODO
+    # function to get specific plot (use get_job_id() to be imported from a jobs.py module)
     pass
 
 # /addresses ... way they're recorded is irrecular
