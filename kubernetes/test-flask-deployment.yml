@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-flask-deployment
+  labels:
+    app: flask-app-pod
+    env: test
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-app-pod
+  template:
+    metadata:
+      labels:
+        app: flask-app-pod
+        env: test
+    spec:
+      containers:
+        - name: flask-app
+          imagePullPolicy: Always
+          image: atx_incidents_api:1.0
+          env:
+            - name: REDIS_IP
+              value: $(REDIS_SERVICE_HOST)
+          ports:
+            - name: http
+              containerPort: 5000
