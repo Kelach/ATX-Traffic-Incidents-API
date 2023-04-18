@@ -2,8 +2,7 @@ from jobs import queue, update_job_status, get_job_by_id
 import requests
 import os
 import redis
-redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
-rd_image_client = redis.Redis(host=redis_host, port=6379, db=3)
+rd_image_client = redis.Redis("127.0.0.1", port=6379, db=3)
 
 # worker.py
 @queue.consume # decorator keeps function "live" and always reading new messages from the queue
