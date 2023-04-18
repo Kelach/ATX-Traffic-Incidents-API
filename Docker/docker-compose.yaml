@@ -13,8 +13,8 @@ services:
 
   flask-api:
     build:
-      context: ./
-      dockerfile: ./Dockerfile.api
+      context: ../
+      dockerfile: ./Docker/Dockerfile.api
     depends_on:
       - redis-db
     image: test_atx_incidents:1.0
@@ -26,8 +26,8 @@ services:
       - REDIS_HOSTNAME=redis-db
   flask-worker:
     build:
-      context: ./
-      dockerfile: ./Dockerfile.wrk
+      context: ../
+      dockerfile: ./Docker/Dockerfile.wrk
     depends_on:
       - redis-db
     image: test_atx_incidents:1.0
