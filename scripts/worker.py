@@ -125,3 +125,5 @@ def save_image(image:dict) -> bool:
 """
 {'data': {'id': 'NdzPeVv', 'title': None, 'description': None, 'datetime': 1681784690, 'type': 'image/png', 'animated': False, 'width': 640, 'height': 480, 'size': 14169, 'views': 0, 'bandwidth': 0, 'vote': None, 'favorite': False, 'nsfw': None, 'section': None, 'account_url': None, 'account_id': 170252845, 'is_ad': False, 'in_most_viral': False, 'has_sound': False, 'tags': [], 'ad_type': 0, 'ad_url': '', 'edited': '0', 'in_gallery': False, 'deletehash': 'nMaeXvR53tg8fki', 'name': '', 'link': 'https://i.imgur.com/NdzPeVv.png'}, 'success': True, 'status': 200}
 """
+
+# @TODO need delete image method and delete images method
