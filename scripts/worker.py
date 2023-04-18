@@ -1,4 +1,8 @@
 from jobs import queue, update_job_status, get_job_by_id
+import requests
+import os
+import redis
+rd_image_client = redis.Redis("127.0.0.1", port=6379, db=3)
 
 # worker.py
 @queue.consume # decorator keeps function "live" and always reading new messages from the queue
@@ -46,9 +50,78 @@ def execute_job(jid):
     # 2) start the analysis job and monitor it to completion.
     # 3) update the job status to indicate that the job has finished.
 
-    def post_plot():
-        # may need to implement time limits
-        '''
-        Function to upload images to imgur. 
-        Returns dictionary object including link to uploaded image
-        '''
+def post_plot(path:str) -> dict:
+    # may need to implement time limits
+    """
+    Description
+    -----------
+        - Helper function to easily upload host images using the Imagur API.
+    Args
+    -----------
+        - path: string denoting the path of the file to be uploaded. NOTE: Only png and jpg images can be uploaded to imagur
+
+    Returns
+    -----------
+        - Dictionary object containing the following:
+            - deletehash(str): *key used to later delete the image*.
+            - link(str): *public link to image*
+            - success(bool): *True if successful else false*. 
+            - datetime(int): *denotes time (Epoch in seconds) of image upload. 
+    Function to upload images to imgur. 
+    Returns dictionary object including link to uploaded image
+    """
+    # retrieving and payload to send to imagur API
+    
+    payload = {}
+    # try to read input file, else print error
+    try:
+        with open(path, "rb") as f:
+            payload["image"] = f.read()
+    except Exception as e:
+        print(f"EXCEPTION CAUGHT...while trying to read file {path}: {e}")   
+        return
+    # retrieving clientID, endpoint to make post request to imagur API
+    clientID = os.environ.get("IMAGUR_ACCESS_TOKEN")
+    imagur_upload_endpoint = "https://api.imgur.com/3/image"
+    header = {"Authorization": clientID}
+    # try to upload image to imagur, else print errors
+    try:
+        response = requests.post(imagur_upload_endpoint, headers=header, data=payload)
+    except Exception:
+        print(f"EXCEPTION CAUGHT...while trying to upload file {path} onto imagur")
+    if response["data"]["success"]:
+        return {
+                "id": response["data"]["id"],
+                "link": response["data"]["link"], 
+                "deletehash": response["data"]["deletehash"],
+                "datetime": response["data"]["datetime"]
+                }
+    else:
+        print("An error has occured uploading image to imagur")
+        return
+def save_image(image:dict) -> bool:
+    """
+    Description
+    -----------
+        - Saves image onto the redis database for images
+    Args
+    -----------
+        - image(dict): expects dictionary with same keys as that returned in post_plot()
+
+    Returns
+        - Boolean; True image was succesfully saved 
+    -----------
+    """    
+    key = f'{image.get("id"):image.get("link")}'
+    try:
+        return rd_image_client.hset(key, mapping=image) 
+    except Exception as e:
+        print(f"ERROR CAUGHT...while trying to save image onto redis: {e}")
+        return False
+    # returns True if successful else an exception is raise
+
+
+# this is what's returned from 'response' varible (nested dictionary with link, and delete)
+"""
+{'data': {'id': 'NdzPeVv', 'title': None, 'description': None, 'datetime': 1681784690, 'type': 'image/png', 'animated': False, 'width': 640, 'height': 480, 'size': 14169, 'views': 0, 'bandwidth': 0, 'vote': None, 'favorite': False, 'nsfw': None, 'section': None, 'account_url': None, 'account_id': 170252845, 'is_ad': False, 'in_most_viral': False, 'has_sound': False, 'tags': [], 'ad_type': 0, 'ad_url': '', 'edited': '0', 'in_gallery': False, 'deletehash': 'nMaeXvR53tg8fki', 'name': '', 'link': 'https://i.imgur.com/NdzPeVv.png'}, 'success': True, 'status': 200}
+"""

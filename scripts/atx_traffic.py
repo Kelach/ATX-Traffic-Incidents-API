@@ -21,7 +21,7 @@ flask_port = 5000
 ### HELPER FUNCTIONS ###
 ########################
 def message_payload(msg:str, success:bool=True, stat_code=200):
-    '''
+    """
         Description:
         ------------
             - Pretty payload to return string messages in
@@ -35,7 +35,7 @@ def message_payload(msg:str, success:bool=True, stat_code=200):
         Returns
         ------------
             - Dictionary with debugging information
-    '''
+    """
     return {"message": msg, "success":success, "status code":stat_code}
 
 def get_redis_client(the_url: str, the_port: int, the_db: int) -> redis:
@@ -52,7 +52,7 @@ def get_redis_client(the_url: str, the_port: int, the_db: int) -> redis:
 
 
 def get_seconds(time_string) -> float:
-    '''
+    """
     Description:
     -----------
         - Takes in a human readable string in the form "YYYY-MM-DDThh:mm:ss" and converts
@@ -66,7 +66,7 @@ def get_seconds(time_string) -> float:
     -----------
         - Time in seconds (float)
     
-    '''
+    """
     default_time = "T00:00:00"
     # appending default time (Hours:Minutes:Seconds) string to input time_string if
     # time is left unspecified
@@ -80,7 +80,7 @@ def get_seconds(time_string) -> float:
 
 
 def is_in_bounds(**kwargs)->bool:
-    '''
+    """
     Description:
     -----------
         - Checks if a given incident is within specified radius and returns a Boolean True or False
@@ -101,7 +101,7 @@ def is_in_bounds(**kwargs)->bool:
         - Boolean. True if input incident is within the boundary of a region having 
             a given radius (in miles) and having the center at a given
             point (longitude + lattitude or a single human readable address)
-    '''
+    """
     
     # @TODO write defensive code logic for types/values inputted into function
     if kwargs["radius_range"] == float("inf"): return True # saves us some computation
@@ -133,7 +133,7 @@ def is_in_bounds(**kwargs)->bool:
 
 
 def get_query_params() -> dict:
-    '''
+    """
         Description:
         -----------
             - Helper function to conveniently get all possible query parameters from a given search. 
@@ -151,7 +151,7 @@ def get_query_params() -> dict:
                 The dictionary keys are as follows: 
                     - "incident_type", "status", "radius", "date_range", "time_range"
                       "address", "longitude", "latitude", "limit", "offest"
-    '''
+    """
     # Query Parameters
     # incident type and status don't need input checks (based on how they are currently implemented)
     incident_type = request.args.get("type", "all") # default to all incident_types
