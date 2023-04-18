@@ -4,21 +4,21 @@ kind: Deployment
 metadata:
   name: test-pvc-deployment
   labels:
-    app: test-redis-pod
+    app: test-redis-db
     env: test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: test-redis-pod
+      app: test-redis-db
   template:
     metadata:
       labels:
         env: test
-        app: test-redis-pod
+        app: test-redis-db
     spec:
       containers:
-        - name: test-redis-pod
+        - name: test-redis-db
           image: redis:7
           volumeMounts:
             - name: test-redis-pvc
