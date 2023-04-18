@@ -5,4 +5,4 @@ RUN pip install redis==4.5.1
 RUN pip install geopy==2.3.0
 RUN pip install matplotlib==3.6.3
 COPY scripts /scripts
-CMD ["cd","/scripts", "&&","python3", "atx_traffic.py"]
+CMD ["python3", "scripts/atx_traffic.py"]
