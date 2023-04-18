@@ -4,13 +4,14 @@ from flask import Flask, request
 import time
 from geopy.geocoders import Nominatim
 import geopy.distance
+import os
 
 
 ########################
 ### GLOBAL VARIABLES ###
 ########################
 source_url = 'https://data.austintexas.gov/api/views/dx9v-zd7x/rows.json?accessType=DOWNLOAD'
-redis_url = '127.0.0.1'
+redis_url = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
 redis_port = 6379
 redis_db = 0
 flask_url = '0.0.0.0'
