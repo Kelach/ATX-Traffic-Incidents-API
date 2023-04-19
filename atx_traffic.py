@@ -26,13 +26,13 @@ def message_payload(msg:str, success:bool=True, stat_code=200):
         Description:
         ------------
             - Pretty payload to return string messages in
-        
+
         Args
         ------------
             - msg: output message for user (string)
             - success: output status of request (boolean)
             - stat_code: HTTP Status Code
-        
+
         Returns
         ------------
             - Dictionary with debugging information
@@ -50,15 +50,13 @@ def get_redis_client(the_url: str, the_port: int, the_db: int) -> redis:
 
 
 
-
-
 def get_seconds(time_string) -> float:
     '''
     Description:
     -----------
         - Takes in a human readable string in the form "YYYY-MM-DDThh:mm:ss" and converts
             it into seconds
-    
+
     Args:
     -----------
         - time_string: string representing human readable time in the form "YYYY-MM-DDThh:mm:ss"
@@ -66,8 +64,9 @@ def get_seconds(time_string) -> float:
     Returns:
     -----------
         - Time in seconds (float)
-    
+
     '''
+
     default_time = "T00:00:00"
     # appending default time string to input time_string if
     # time is left unspecified
@@ -75,8 +74,6 @@ def get_seconds(time_string) -> float:
     time_string += default_time[offset:]
 
     return time.mktime(time.strptime(time_string, '%Y-%m-%dT%H:%M:%S'))
-
-
 
 
 
@@ -103,7 +100,7 @@ def is_in_bounds(**kwargs)->bool:
             a given radius (in miles) and having the center at a given
             point (longitude + lattitude or a single human readable address)
     '''
-    
+
     # @TODO write defensive code logic for types/values inputted into function
     if kwargs["radius_range"] == float("inf"): return True # saves us some computation
 
@@ -117,7 +114,7 @@ def is_in_bounds(**kwargs)->bool:
         kwargs["lng"] = location.longitude
     ######## MAY NEED TO REMOVE THIS CODE ABOVE ###########
 
-    
+
     incident = kwargs["incident"]
     # calculating great circle distance using geopy
     coords_1 = (kwargs["lat"], kwargs["lng"])
@@ -128,8 +125,6 @@ def is_in_bounds(**kwargs)->bool:
         print("Error calculating distance between two points: {e}")
         raise(e)
     return distance <= kwargs["radius_range"]
-
-
 
 
 
@@ -165,6 +160,7 @@ def get_query_params() -> dict:
             return (message_payload("radius must be a positive number only", False, 404), 404)
     except Exception as e:
         return (message_payload(f"invalid radius parameter input: {e}", False, 404), 404)
+
     # start + end dates
     try:
         start_date = request.args.get("start", "1971-01-01") # default to several years in past
@@ -176,6 +172,7 @@ def get_query_params() -> dict:
         get_seconds(end_date) # using get_seconds function to check formatting of date
     except Exception as e:
         return (message_payload(f"Invalid 'end' input parameter: {e}", False, 404), 404)
+
     # longitude + latitude
     try:
         longitude = float(request.args.get("lgt", -97.8961686)) # default to longitude
@@ -189,6 +186,7 @@ def get_query_params() -> dict:
             or not -180 <= longitude <= 180):
             msg = f"Error: longitude and latitude coordinates must be within the ranges -90 <-> 90 and -180 <-> 180 respectively"
             return (message_payload(msg, False, 404), 404)
+
     # offset + limit
     try:
         offset = int(request.args.get("offset", 0)) # default to no offset
@@ -200,7 +198,7 @@ def get_query_params() -> dict:
     finally:
         if offset < 0 or limit < 0:
             return (message_payload(f"Error: limit and offset input parameters must be positive integers only",False, 404), 404)
-        
+
     # need to check address, but may not include addresses at all
     address = request.args.get("address", None) # default None address
     return {"incident_type":incident_type,
