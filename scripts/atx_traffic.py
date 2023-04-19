@@ -15,7 +15,6 @@ redis_port = 6379
 redis_db = 0
 flask_url = '0.0.0.0'
 flask_port = 5000
-EARTH_RADIUS = 3958.8 # miles
 
 
 ########################
@@ -68,7 +67,7 @@ def get_seconds(time_string) -> float:
     '''
 
     default_time = "T00:00:00"
-    # appending default time string to input time_string if
+    # appending default time (Hours:Minutes:Seconds) string to input time_string if
     # time is left unspecified
     offset = len(time_string) - 10
     time_string += default_time[offset:]
@@ -562,6 +561,19 @@ def coordinates_range():
 
 
 
+
+@app.route("/jobs/plot", methods=["POST"])
+def make_plot():
+    # @TODO
+    # function to make timeseries, heatmap, and dotmap plots
+    # *use query paremeters to get plot kind*
+    pass
+
+app.route("/jobs/plot/<jid>", methods=["GET"])
+def get_plot(jid):
+    # @TODO
+    # function to get specific plot (use get_job_id() to be imported from a jobs.py module)
+    pass
 
 # /addresses ... way they're recorded is irrecular
 # /statuses
