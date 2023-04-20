@@ -1,14 +1,15 @@
 from jobs import queue, update_job_status, get_job_by_id
+import json
 import requests
 import os
 import redis
 redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
 rd_image_client = redis.Redis(host=redis_host, port=6379, db=3, decode_responses=True)
-access_token = os.environ.get("IMAGUR_ACCESS_TOKEN")
+access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
 imagur_auth = "Bearer " + access_token
 imagur_image_endpoint = "https://api.imgur.com/3/image"
 # worker.py
-@queue.consume # decorator keeps function "live" and always reading new messages from the queue
+@queue.worker # decorator keeps function "live" and always reading new messages from the queue
 def execute_job(jid):
     """
     Retrieve a job id from the task queue and execute the job.
@@ -88,14 +89,15 @@ def upload_image(path:str) -> dict:
     # try to upload image to imagur, else print errors
     try:
         response = requests.post(imagur_image_endpoint, headers=header, data=payload)
-    except Exception:
-        print(f"EXCEPTION CAUGHT...while trying to upload file {path} onto imagur")
-    if response["data"]["success"]:
+    except Exception as e:
+        print(f"EXCEPTION CAUGHT...while trying to upload file {path} onto imagur: {e}")
+    if response.status_code == 200:
+        content = json.loads(response.content.decode("utf-8"))
         return {
-                "id": response["data"]["id"],
-                "link": response["data"]["link"], 
-                "deletehash": response["data"]["deletehash"],
-                "datetime": response["data"]["datetime"]
+                "id": content["data"]["id"],
+                "link": content["data"]["link"], 
+                "deletehash": content["data"]["deletehash"],
+                "datetime": content["data"]["datetime"]
                 }
     else:
         print(f"An error has occured uploading image to imagur. check header: {header}")
@@ -139,7 +141,7 @@ def delete_images() -> bool:
     -----------
         - Boolean True is deletion was successful else False
     '''
-    # test for possible data payload requirements   
+    # test for possible data payload requirements 
     for key in rd_image_client.keys():
         image = rd_image_client.get(key)
         if image.get("deletehash") != None:
@@ -155,5 +157,3 @@ def delete_images() -> bool:
             return False
     
     return True
-
-# @TODO need delete image method and delete images method   
