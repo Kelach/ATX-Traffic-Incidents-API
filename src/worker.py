@@ -1,10 +1,9 @@
-from jobs import queue, update_job_status, get_job_by_id
+from jobs import queue, update_job_status, get_job_by_id, rd_details
 import json
 import requests
 import os
 import redis
 redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
-rd_image_client = redis.Redis(host=redis_host, port=6379, db=3, decode_responses=True)
 access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
 imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"
@@ -191,7 +190,7 @@ def save_image(image:dict) -> bool:
     print(image)
     key = f"{image.get('id')}:{image.get('link')}"
     try:
-        return rd_image_client.hset(key, mapping=image) 
+        return rd_details.hset(key, mapping=image) 
     except Exception as e:
         print(f"ERROR CAUGHT...while trying to save image onto redis: {e}")
         return False
@@ -213,8 +212,8 @@ def delete_images() -> bool:
         - Boolean True is deletion was successful else False
     '''
     # deletes each image from image db from imagur
-    for key in rd_image_client.keys():
-        image = rd_image_client.hgetall(key)
+    for key in rd_details.keys():
+        image = rd_details.hgetall(key)
         if image.get("deletehash") != None:
             header = {"Authorization": imagur_auth}
             deletehash = image.get('deletehash')
@@ -228,7 +227,7 @@ def delete_images() -> bool:
             return False
     
     # deleting all images from Redis
-    rd_image_client.flushdb()
+    rd_details.flushdb()
 
     return True
 
