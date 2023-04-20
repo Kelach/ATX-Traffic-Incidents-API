@@ -5,7 +5,7 @@ import os
 # jobs.py
 redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
 queue = HotQueue('queue', host=redis_host, port=6379, db=1)
-rd = redis.Redis(host=redis_host, port=6379, db=0)
+rd = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 
 def _generate_jid():
     """

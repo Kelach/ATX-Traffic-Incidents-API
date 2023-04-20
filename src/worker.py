@@ -3,8 +3,10 @@ import requests
 import os
 import redis
 redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
-rd_image_client = redis.Redis(host=redis_host, port=6379, db=3)
-
+rd_image_client = redis.Redis(host=redis_host, port=6379, db=3, decode_responses=True)
+access_token = os.environ.get("IMAGUR_ACCESS_TOKEN")
+imagur_auth = "Bearer " + access_token
+imagur_image_endpoint = "https://api.imgur.com/3/image"
 # worker.py
 @queue.consume # decorator keeps function "live" and always reading new messages from the queue
 def execute_job(jid):
@@ -51,7 +53,7 @@ def execute_job(jid):
     # 2) start the analysis job and monitor it to completion.
     # 3) update the job status to indicate that the job has finished.
 
-def post_plot(path:str) -> dict:
+def upload_image(path:str) -> dict:
     # may need to implement time limits
     """
     Description
@@ -82,12 +84,10 @@ def post_plot(path:str) -> dict:
         print(f"EXCEPTION CAUGHT...while trying to read file {path}: {e}")   
         return
     # retrieving clientID, endpoint to make post request to imagur API
-    clientID = os.environ.get("IMAGUR_ACCESS_TOKEN")
-    imagur_upload_endpoint = "https://api.imgur.com/3/image"
-    header = {"Authorization": clientID}
+    header = {"Authorization": imagur_auth}
     # try to upload image to imagur, else print errors
     try:
-        response = requests.post(imagur_upload_endpoint, headers=header, data=payload)
+        response = requests.post(imagur_image_endpoint, headers=header, data=payload)
     except Exception:
         print(f"EXCEPTION CAUGHT...while trying to upload file {path} onto imagur")
     if response["data"]["success"]:
@@ -98,7 +98,7 @@ def post_plot(path:str) -> dict:
                 "datetime": response["data"]["datetime"]
                 }
     else:
-        print("An error has occured uploading image to imagur")
+        print(f"An error has occured uploading image to imagur. check header: {header}")
         return
 def save_image(image:dict) -> bool:
     """
@@ -127,4 +127,33 @@ def save_image(image:dict) -> bool:
 {'data': {'id': 'NdzPeVv', 'title': None, 'description': None, 'datetime': 1681784690, 'type': 'image/png', 'animated': False, 'width': 640, 'height': 480, 'size': 14169, 'views': 0, 'bandwidth': 0, 'vote': None, 'favorite': False, 'nsfw': None, 'section': None, 'account_url': None, 'account_id': 170252845, 'is_ad': False, 'in_most_viral': False, 'has_sound': False, 'tags': [], 'ad_type': 0, 'ad_url': '', 'edited': '0', 'in_gallery': False, 'deletehash': 'nMaeXvR53tg8fki', 'name': '', 'link': 'https://i.imgur.com/NdzPeVv.png'}, 'success': True, 'status': 200}
 """
 
-# @TODO need delete image method and delete images method
+def delete_images() -> bool:
+    '''
+    Description
+    -----------
+        - Deletes all images from redis database and imagur
+    Args
+    -----------
+        - None
+    Returns
+    -----------
+        - Boolean True is deletion was successful else False
+    '''
+    # test for possible data payload requirements   
+    for key in rd_image_client.keys():
+        image = rd_image_client.get(key)
+        if image.get("deletehash") != None:
+            header = {"Authorization": imagur_auth}
+            deletehash = image['deletehash']
+            try:
+                requests.delete(f"{imagur_image_endpoint}/{deletehash}", headers=header)
+            except:
+                print("ERROR deleting image from imagur. Maybe check header, and payload requirements?")
+                return False
+        else:
+            print(f"no delete hash attribute found in image: {image}")
+            return False
+    
+    return True
+
+# @TODO need delete image method and delete images method   
