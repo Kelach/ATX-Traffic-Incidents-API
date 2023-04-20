@@ -98,9 +98,9 @@ def execute_job(jid):
                 BBox = (-98.9,-97.0, 30.0, 31.1)
                 mp = plt.imread('map.png')
                 fig, ax = plt.subplots()
-                ax.hist2d(lons, lats, zorder=1, alpha= 0.2 \
+                ax.hist2d(lons, lats, zorder=1, alpha= 0.2, \
                         bins=[int((BBox[1]-BBox[0])/0.01), \
-                        int((BBox[3]-BBox[2])/0.01)] \
+                        int((BBox[3]-BBox[2])/0.01)], \
                         range=[[BBox[0], BBox[1]], \
                         [BBox[2], BBox[3]]])
                 ax.set_xlim(BBox[0],BBox[1])
@@ -132,7 +132,6 @@ def execute_job(jid):
     # 3) update the job status to indicate that the job has finished.
 
 def upload_image(path:str) -> dict:
-    # may need to implement time limits
     """
     Description
     -----------
@@ -148,8 +147,6 @@ def upload_image(path:str) -> dict:
             - link(str): *public link to image*
             - success(bool): *True if successful else false*. 
             - datetime(int): *denotes time (Epoch in seconds) of image upload. 
-    Function to upload images to imgur. 
-    Returns dictionary object including link to uploaded image
     """
     # retrieving and payload to send to imagur API
     
@@ -183,16 +180,17 @@ def save_image(image:dict) -> bool:
     """
     Description
     -----------
-        - Saves image onto the redis database for images
+        - Saves image onto the redis database for images (db 3)
     Args
     -----------
         - image(dict): expects dictionary with same keys as that returned in post_plot()
 
     Returns
-        - Boolean; True image was succesfully saved 
+        - Boolean; True if image was succesfully saved, otherwise False
     -----------
     """    
-    key = f'{image.get("id"):image.get("link")}'
+    print(image)
+    key = f"{image.get('id')}:{image.get('link')}"
     try:
         return rd_image_client.hset(key, mapping=image) 
     except Exception as e:
@@ -202,9 +200,6 @@ def save_image(image:dict) -> bool:
 
 
 # this is what's returned from 'response' varible (nested dictionary with link, and delete)
-"""
-{'data': {'id': 'NdzPeVv', 'title': None, 'description': None, 'datetime': 1681784690, 'type': 'image/png', 'animated': False, 'width': 640, 'height': 480, 'size': 14169, 'views': 0, 'bandwidth': 0, 'vote': None, 'favorite': False, 'nsfw': None, 'section': None, 'account_url': None, 'account_id': 170252845, 'is_ad': False, 'in_most_viral': False, 'has_sound': False, 'tags': [], 'ad_type': 0, 'ad_url': '', 'edited': '0', 'in_gallery': False, 'deletehash': 'nMaeXvR53tg8fki', 'name': '', 'link': 'https://i.imgur.com/NdzPeVv.png'}, 'success': True, 'status': 200}
-"""
 
 def delete_images() -> bool:
     '''
@@ -218,19 +213,22 @@ def delete_images() -> bool:
     -----------
         - Boolean True is deletion was successful else False
     '''
-    # test for possible data payload requirements 
+    # deletes each image from image db from imagur
     for key in rd_image_client.keys():
-        image = rd_image_client.get(key)
+        image = rd_image_client.hgetall(key)
         if image.get("deletehash") != None:
             header = {"Authorization": imagur_auth}
-            deletehash = image['deletehash']
+            deletehash = image.get('deletehash')
             try:
                 requests.delete(f"{imagur_image_endpoint}/{deletehash}", headers=header)
             except:
                 print("ERROR deleting image from imagur. Maybe check header, and payload requirements?")
                 return False
         else:
-            print(f"no delete hash attribute found in image: {image}")
+            print(f"No delete hash attribute found in image: {image}")
             return False
     
+    # deleting all images from Redis
+    rd_image_client.flushdb()
+
     return True

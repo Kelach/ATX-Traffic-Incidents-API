@@ -1,6 +1,6 @@
 import pytest
 import time
-from atx_traffic import get_seconds, is_in_bounds
+from ..atx_traffic import get_seconds, is_in_bounds
 
 def test_get_seconds():
     assert get_seconds("2037-12-30") == float(2145765600)
