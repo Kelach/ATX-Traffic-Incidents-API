@@ -1,6 +1,10 @@
 # source data
 *.json
 
+# redis data
+/data
+.rdb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
