@@ -6,7 +6,7 @@ import redis
 redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
 rd_image_client = redis.Redis(host=redis_host, port=6379, db=3, decode_responses=True)
 access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
-imagur_auth = "Bearer " + access_token
+imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"
 # worker.py
 @queue.worker # decorator keeps function "live" and always reading new messages from the queue
@@ -231,3 +231,5 @@ def delete_images() -> bool:
     rd_image_client.flushdb()
 
     return True
+
+execute_job()
