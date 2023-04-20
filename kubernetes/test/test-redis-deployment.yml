@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-pvc-deployment
+  labels:
+    app: test-redis-db
+    env: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-redis-db
+  template:
+    metadata:
+      labels:
+        env: test
+        app: test-redis-db
+    spec:
+      containers:
+        - name: test-redis-db
+          image: redis:7
+          volumeMounts:
+            - name: test-redis-pvc
+              mountPath: /data
+          ports:
+            - name: http
+              containerPort: 6379
+      volumes:
+        - name: test-redis-pvc
+          persistentVolumeClaim:
+            claimName: test-redis-pvc

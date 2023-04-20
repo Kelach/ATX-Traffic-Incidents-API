@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-redis-service
+  labels:
+      env: test
+spec:
+  type: ClusterIP
+  selector:
+    app: test-redis-db
+    
+  ports:
+  - name: test-redis-db
+    port: 6379
+    targetPort: 6379

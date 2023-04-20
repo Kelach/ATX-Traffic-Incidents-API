@@ -1,9 +1,11 @@
 import uuid
 from hotqueue import HotQueue
 import redis
+import os
 # jobs.py
-queue = HotQueue("queue", host='127.0.0.1', port=6379, db=1)
-rd = redis.Redis(host='127.0.0.1', port=6379, db=0)
+redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
+queue = HotQueue('queue', host=redis_host, port=6379, db=1)
+rd = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 
 def _generate_jid():
     """
@@ -50,8 +52,8 @@ def add_job(start, job_type, end, status="submitted"):
     """Add a job to the redis queue."""
     jid = _generate_jid()
     job_dict = _instantiate_job(jid, job_type, status, start, end)
-    _save_job(job_dict["id"], job_dict)
-    _queue_job(job_dict["id"])
+    _save_job(job_dict['id'], job_dict)
+    _queue_job(job_dict['id'])
     return job_dict
 
 def update_job_status(jid, status, results:dict=None):
@@ -60,7 +62,7 @@ def update_job_status(jid, status, results:dict=None):
     if job:
         job['status'] = status
         if results: # adding results to job update
-            job["results"] = results
+            job['results'] = results
         _save_job(_generate_job_key(jid), job)
     else :
         raise Exception("No Job was found in the database with the following job ID '{jid}'")
