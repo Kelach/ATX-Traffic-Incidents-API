@@ -3,7 +3,7 @@ import json
 import requests
 import os
 import redis
-redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
+redis_host = os.environ.get('TEST_REDIS_SERVICE_SERVICE_HOST', '127.0.0.1')
 access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
 imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"

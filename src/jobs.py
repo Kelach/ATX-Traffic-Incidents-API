@@ -8,7 +8,7 @@ import os
 # 0: traffic data
 # 1: job queue (ids only)
 # 2: job details and results (job id, status, parameters)
-redis_host = os.environ.get('REDIS_HOSTNAME', '127.0.0.1')
+redis_host = os.environ.get('TEST_REDIS_SERVICE_SERVICE_HOST', '127.0.0.1')
 queue = HotQueue('queue', host=redis_host, port=6379, db=1)
 rd = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
 rd_details = redis.Redis(host = redis_host, port = 6379, db = 2, decode_responses = False)
