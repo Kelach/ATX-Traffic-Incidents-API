@@ -6,7 +6,6 @@ from geopy.geocoders import Nominatim
 import geopy.distance
 import os
 
-
 ########################
 ### GLOBAL VARIABLES ###
 ########################
