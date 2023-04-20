@@ -9,7 +9,7 @@ services:
       dockerfile: ./Docker/Dockerfile
     depends_on:
       - redis-db
-    image: test_atx_incidents:ashton
+    image: kelach/test_atx_incidents
     ports:
       - "5000:5000"
     command: python3 ../src/atx_traffic.py
@@ -24,7 +24,7 @@ services:
       dockerfile: ./Docker/Dockerfile
     depends_on:
       - redis-db
-    image: test_atx_incidents:ashton
+    image: kelach/test_atx_incidents
     command: python3 ../src/worker.py    
     environment:
       - REDIS_HOSTNAME=redis-db
