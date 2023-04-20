@@ -2,21 +2,20 @@ import uuid
 from hotqueue import HotQueue
 import redis
 # jobs.py
-queue = HotQueue("queue", host='127.0.0.1', port=6379, db=1)
+# JUST TO CLARIFY
+# REDIS DB'S
+# 0: traffic data
+# 1: job queue (ids only)
+# 2: job details and results (job id, status, parameters)
 rd = redis.Redis(host='127.0.0.1', port=6379, db=0)
+queue = HotQueue("queue", host='127.0.0.1', port=6379, db=1)
+rd_details = redis.Redis(host='127.0.0.1', port=6379, db=2)
 
 def _generate_jid():
     """
     Generate a pseudo-random identifier for a job.
     """
     return str(uuid.uuid4())
-
-def _generate_job_key(jid):
-    """
-    Generate the redis key from the job id to be used when storing, retrieving or updating
-    a job in the database.
-    """
-    return 'job.{}'.format(jid)
 
 def _instantiate_job(jid, job_type, status, start, end):
     """
@@ -40,7 +39,7 @@ def _instantiate_job(jid, job_type, status, start, end):
 def _save_job(job_key, job_dict):
     global rd
     """Save a job object in the Redis database."""
-    rd.hset(job_key, mapping=job_dict)
+    rd_details.hset(job_key, mapping=job_dict)
 
 def _queue_job(jid):
     """Add a job to the redis queue."""
@@ -61,11 +60,12 @@ def update_job_status(jid, status, results:dict=None):
         job['status'] = status
         if results: # adding results to job update
             job["results"] = results
-        _save_job(_generate_job_key(jid), job)
+        _save_job(jid, job)
     else :
         raise Exception("No Job was found in the database with the following job ID '{jid}'")
+
 def get_job_by_id(jid):
     """"Returns Job dictionary object from redis database"""
-    global rd
-    return rd.hget(jid)
+    global rd_details
+    return rd_details.hget(jid)
 

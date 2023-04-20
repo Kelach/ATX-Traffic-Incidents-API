@@ -15,7 +15,14 @@ redis_port = 6379
 redis_db = 0
 flask_url = '0.0.0.0'
 flask_port = 5000
-
+AUSTIN_LAT = 30.2672
+AUSTIN_LON = -97.7431
+LAT_TOL = 5
+LON_TOL = 5
+PLOT_LAT_MIN = 30.0
+PLOT_LAT_MAX = 31.1
+PLOT_LON_MIN = -98.9
+PLOT_LON_MAX = -97.0
 
 ########################
 ### HELPER FUNCTIONS ###
@@ -289,7 +296,7 @@ def incidents():
             If there is an error, a descriptive string will be returned with a
             404 status code.
     """
-    global rd, source_url
+    global rd, source_url, AUSTIN_LAT, AUSTIN_LON, LAT_TOL, LON_TOL
     if request.method == 'GET':
         params = get_query_params()
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
@@ -337,13 +344,32 @@ def incidents():
                 flags.append(col_json.get('flags'))
             data = the_json['data']
             jj = 0 # Only for indexing purposes
-            print('ending col loop, starting datum loop')
             for datum in data:
                 key = datum[cols.index('traffic_report_id')]
                 for ii in range(0, len(cols)):
                     if datum[ii] == None:
                         datum[ii] = ''
                     # Data cleaning
+                    if (cols[ii] == 'latitude' \
+                            and datum[ii].replace('.', '').isnumeric()) \
+                            and abs(float(datum[ii]) - AUSTIN_LAT) > LAT_TOL:
+                                datum[ii] = ''
+                                try:
+                                    ind = datum.index('longitude')
+                                    datum[ind] = ''
+                                    rd.hset(key, cols[ind], datum[ind])
+                                except:
+                                    pass
+                    elif (cols[ii] == 'longitude' \
+                            and datum[ii].replace('.', '').isnumeric()) \
+                            and abs(float(datum[ii]) - AUSTIN_LON) > LON_TOL:
+                                datum[ii] = ''
+                                try:
+                                    ind = datum.index('latitude')
+                                    datum[ind] = ''
+                                    rd.hset(key, cols[ind], datum[ind])
+                                except:
+                                    pass
                     # Restrict columns to non-hidden ones
                     if flags[ii] is None or 'hidden' not in flags[ii]:
                         rd.hset(key, cols[ii], datum[ii])
