@@ -71,14 +71,8 @@ def get_seconds(time_string) -> float:
     Returns:
     -----------
         - Time in seconds (float)
-<<<<<<< HEAD:scripts/atx_traffic.py
-
-    '''
-
-=======
     
     """
->>>>>>> 9e24ae5be7b24b5bfb1902a3aa7b41d1b714e495:src/atx_traffic.py
     default_time = "T00:00:00"
     # appending default time (Hours:Minutes:Seconds) string to input time_string if
     # time is left unspecified
@@ -111,13 +105,8 @@ def is_in_bounds(**kwargs)->bool:
         - Boolean. True if input incident is within the boundary of a region having 
             a given radius (in miles) and having the center at a given
             point (longitude + lattitude or a single human readable address)
-<<<<<<< HEAD:scripts/atx_traffic.py
-    '''
-
-=======
     """
     
->>>>>>> 9e24ae5be7b24b5bfb1902a3aa7b41d1b714e495:src/atx_traffic.py
     # @TODO write defensive code logic for types/values inputted into function
     if kwargs["radius_range"] == float("inf"): return True # saves us some computation
 
