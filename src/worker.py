@@ -158,9 +158,8 @@ def upload_image(path:str) -> dict:
     except Exception as e:
         print(f"EXCEPTION CAUGHT...while trying to read file {path}: {e}")   
         return
-    # retrieving clientID, endpoint to make post request to imagur API
     header = {"Authorization": imagur_auth}
-    # try to upload image to imagur, else print errors
+    # try to make post request to imagur, else print errors
     try:
         response = requests.post(imagur_image_endpoint, headers=header, data=payload)
     except Exception as e:
