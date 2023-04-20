@@ -262,7 +262,7 @@ def nil():
 @app.route('/incidents', methods = ['GET', 'POST', 'DELETE'])
 def incidents():
     """/incidents endpoint
-    
+
     Description
     -----------
     This function either returns incident data, subject to certain query
