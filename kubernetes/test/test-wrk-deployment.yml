@@ -20,7 +20,7 @@ spec:
       containers:
         - name: test-worker-api
           imagePullPolicy: Always
-          image: test_atx_incidents_api:1.0
+          image: kelach/test_atx_incidents_api:1.0
           command: ['python3', 'src/worker.py']
           env:
             - name: REDIS_HOSTNAME

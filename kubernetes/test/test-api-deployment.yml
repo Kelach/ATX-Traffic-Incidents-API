@@ -20,7 +20,7 @@ spec:
       containers:
         - name: test-flask-api
           imagePullPolicy: Always
-          image: test_atx_incidents_api:1.0
+          image: kelach/test_atx_incidents_api:1.0
           env:
             - name: REDIS_HOSTNAME
               value: $(REDIS_SERVICE_HOST)
