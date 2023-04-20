@@ -1,8 +1,9 @@
 # source data
 *.json
 
-# redis db storage
+# redis data
 /data
+.rdb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
