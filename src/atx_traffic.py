@@ -419,7 +419,56 @@ def ids():
         return f'ERROR: unable to get IDs', 400
 
 
+# /epochs
+@app.route('/epochs', methods = ['GET'])
+def epochs():
 
+ """/epochs endpoint
+ Description:
+ ------------
+ This function returns a list of all listed epochs in the database. If there is an error, 
+ a descriptive string will  be returned with a 404 status code.
+
+ Arguments:
+ ----------
+   none
+
+ Returns:
+ --------
+   A list of all epochs
+ """
+
+ global rd
+ params = get_query_params()
+
+ try:
+   result = []
+   for key in rd.keys():
+     incident = rd.hgetall(key)
+
+     # parameter: offset
+     if params['offset'] > 0:
+       params['offset'] -= 1
+       continue
+
+     # parameter: incident type
+     elif params['incident_type'].lower() != "all" and incident['issue_reported'] !=  params['incident_type'].lower():
+      continue
+
+     # parameter: incident status
+      elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
+       continue
+
+     # parameter: limit
+     elif len(result) >= params['limit']:
+       break
+
+      result.append(rd.hget(key))
+   return result
+
+ except Exception as e:
+   print (f'ERROR: unable to retrieve epochs/n{e}')
+   return f'ERROR: unable to retrieve epochs', 400
 
 
 # /issues
@@ -431,7 +480,7 @@ def issues():
     -----------
     This function returns a list of all unique issues reported in the
     database. If there is an error, a descriptive string will be returned with
-    a 404 status code. 
+    a 404 status code.
 
     Args:
     -----------
