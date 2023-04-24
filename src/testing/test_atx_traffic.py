@@ -1,6 +1,7 @@
 import pytest
 import time
-from ..atx_traffic import get_seconds, is_in_bounds
+import json
+from atx_traffic import get_seconds, is_in_bounds, app
 
 def test_get_seconds():
     assert get_seconds("2037-12-30") == float(2145765600)
@@ -18,11 +19,29 @@ def test_is_in_bounds():
     assert is_in_bounds(check_address=False, incident=test_incident, radius_range=7, lng=lng, lat=lat) == True
     assert is_in_bounds(check_address=False, incident=test_incident, radius_range=5, lng=lng, lat=lat) == False
     
-    # Testing for address inputs (may not need)
-    # test_incident["address"] = "3900-3923 Southwest Pkwy"
-    # assert is_in_bounds(check_address=True, incident=test_incident, radius_range=5.7, address="W 24th Street") == True
-    # assert is_in_bounds(check_address=True, incident=test_incident, radius_range=5.6, address="W 24th Street") == False
+def test_handle_jobs():
+    payload = {"start": "wewewe", "end": ""}
+    assert app.test_client().post("/jobs/incidents", data=json.dumps(payload)).status_code == 404
+    assert app.test_client().post("/jobs/plot/timeseries", data=json.dumps(payload)).status_code == 404
+    assert app.test_client().post("/jobs/plot/dotmap", data=json.dumps(payload)).status_code == 404
+    assert app.test_client().post("/jobs/plot/heatmap", data=json.dumps(payload)).status_code == 404
     
+    payload["start"] = "2019-12-30"
+    payload["end"] = "2020-12-30"
+    
+    assert app.test_client().post("/jobs/incidents", data=json.dumps(payload)).status_code == 200
+    assert app.test_client().post("/jobs/plot/timeseries", data=json.dumps(payload)).status_code == 200
+    assert app.test_client().post("/jobs/plot/dotmap", data=json.dumps(payload)).status_code == 200
+    assert app.test_client().post("/jobs/plot/heatmap", data=json.dumps(payload)).status_code == 200
+
+    assert app.test_client().get("/jobs/incidents/in-progress").data.decode("utf-8") == "incidents"
+    assert app.test_client().get("/jobs/plot/heatmap/in-progress").data.decode("utf-8") == "heatmap"
+    assert app.test_client().get("/jobs/plot/timeseries/in-progress").data.decode("utf-8") == "timeseries"
+    assert app.test_client().get("/jobs/plot/dotmap/in-progress").data.decode("utf-8") == "dotmap"
+    
+
+
+
 ##############################
 # Test Function Tingies here #
 ##############################
