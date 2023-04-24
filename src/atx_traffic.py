@@ -479,18 +479,18 @@ def epochs():
        continue
 
      # parameter: incident type
-     elif params['incident_type'].lower() != "all" and incident['issue_reported'] !=  params['incident_type'].lower():
+     elif params['incident_type'].lower() != "all" and incident['issue_reported'].lower() !=  params['incident_type'].lower():
       continue
 
      # parameter: incident status
-      elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
+     elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
        continue
 
      # parameter: limit
      elif len(result) >= params['limit']:
        break
 
-      result.append(rd.hget(key, 'published_date'))
+     result.append(rd.hget(key, 'published_date'))
    return result
 
  except Exception as e:
