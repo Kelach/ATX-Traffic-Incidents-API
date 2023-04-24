@@ -68,7 +68,8 @@ git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git .
 ```
 **
 
-* Flask
+* Flask **are we using flask?**
+
 
 * Docker Hub
 This app has already been pushed to Docker Hub. To run, please pull the image
@@ -128,12 +129,20 @@ $ kubectl exec -it <**file_name**> -- /bin/bash
 ```
 This will redirect you into a terminal where you may now curl each of the routes. 
 
-## Routes and Results
+## Routes
 
-| Routes | Methods | Description | Results |
-|-------| ------|-------|----------|
-|`/` | `GET` | returns a welcoming message | string |
-|`/help` | `GET` | returns description of each route | string | 
-| `/incidents`| `POST` `GET` `DELETE` | Posts, retrieves, or deletes data depending on method used | list of dictionaries |
+| Routes | Methods | Description |
+|-------| ------|-------|
+|`/` | `GET` | returns a welcoming message(string) |
+|`/help` | `GET` | returns description of each route (string) | 
+| `/incidents`| `POST` `GET` `DELETE` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
+| `/epochs` | `GET` | returns epochs (list) |
+| `/ids` | `GET` | returns incident IDs (list) |
+| `/issues`| `GET` | returns incident type (list)|
+| `/published-range` | `GET` | earliest and latest published dates (string) |
+| `/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
+| `/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
+| `/jobs/plot` | `GET` | ...... |
+| `/jobs/plot/<jid>` | `GET` | ....... | 
 
-
+## Results
