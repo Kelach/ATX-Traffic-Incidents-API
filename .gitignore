@@ -1,6 +1,9 @@
 # source data
 *.json
 
+# vscode folder
+.vscode
+
 # redis data
 /data
 .rdb
