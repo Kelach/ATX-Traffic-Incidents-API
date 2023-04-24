@@ -1,10 +1,11 @@
+from flask import Flask, request
+from jobs import add_job, get_job_by_id, rd_details
 import redis
 import requests
-from flask import Flask, request
 import time
-from geopy.geocoders import Nominatim
 import geopy.distance
 import os
+import json
 
 ########################
 ### GLOBAL VARIABLES ###
@@ -109,17 +110,6 @@ def is_in_bounds(**kwargs)->bool:
     # @TODO write defensive code logic for types/values inputted into function
     if kwargs["radius_range"] == float("inf"): return True # saves us some computation
 
-    ####### MAY NEED TO REMOVE THIS CODE BELOW ###########
-    if kwargs["check_address"]:
-        address = kwargs["address"]  + " Austin TX" # specifying address for geopy 
-        locator = Nominatim(user_agent="atx_traffic")
-        location = locator.geocode(address) # obtains the locator corresponding to input address
-        # retrive long + lat of location
-        kwargs["lat"] = location.latitude
-        kwargs["lng"] = location.longitude
-    ######## MAY NEED TO REMOVE THIS CODE ABOVE ###########
-
-
     incident = kwargs["incident"]
     # calculating great circle distance using geopy
     coords_1 = (kwargs["lat"], kwargs["lng"])
@@ -138,8 +128,8 @@ def get_query_params() -> dict:
         Description:
         -----------
             - Helper function to conveniently get all possible query parameters from a given search. 
-                Include defensive programming by rejecting invalid query inputs. Lastly, 
-                converst long, lat, and radius input parameters into floats, and limit + offset input
+                Uses defensive programming by rejecting invalid query inputs. Lastly, 
+                converts long, lat, and radius input parameters into floats, and limit + offset input
                 parameters into integers.
 
         Args:
@@ -152,11 +142,12 @@ def get_query_params() -> dict:
                 The dictionary keys are as follows: 
                     - "incident_type", "status", "radius", "date_range", "time_range"
                       "address", "longitude", "latitude", "limit", "offest"
+            - If an error has occured a tuple of length two is returned containing an error message and a status code
     """
     # Query Parameters
     # incident type and status don't need input checks (based on how they are currently implemented)
     incident_type = request.args.get("type", "all") # default to all incident_types
-    status = request.args.get("status", "both") # defualt to both statues
+    status = request.args.get("status", "all") # defualt to all statues
 
     # radius
     try:
@@ -217,6 +208,81 @@ def get_query_params() -> dict:
             "offset":offset,
             "limit":limit
     }
+
+
+def get_jobs(job_type:str, status:str) -> list[dict]:
+    """
+    Description:
+    -----------
+    This helper function gathers all jobs using the rd_details redis client
+    and returns a list containing all the retrieved jobs
+
+    Args:
+    -----------
+        type(str): One of the 4 job types currently supported by the worker.py module. 
+            Namely: "incidents", "plot-timeseries", "plot-heatmap", "plot-dotmap"   
+        status(str):  Status of job ("in-progress", "completed", "failed", or "submitted")
+
+    Returns:
+    -----------
+        List of dictionaries (each dictionary being a job 'object')
+    """
+    # Lambda functions defined below help filter jobs by job_type and status
+    is_type = lambda job : job.get("type") in job_type or job_type == "all"
+    is_status = lambda job : job.get("status") == status or status == "all"
+
+    # first retrieve all jobs 
+    try:
+        all_jobs = [rd_details.hget(key) for key in rd_details.keys()]
+    except Exception as e:
+        print("ERROR retrieving all jobs from redis database: {e}")
+        return 
+    # then filter jobs by type and status and return 
+    return [job for job in all_jobs if is_type(job) and is_status(job)]
+
+
+
+
+def filter_incidents_data(params:dict) -> list:
+    """
+    Description:
+    -----------
+    Helper function easily filters through entire dataset
+    and returns the resulting filtered list 
+
+    Args:
+    -----------
+    params(dict): Query parameters returned from the get_query_params() 
+        containing the following keys:
+            - "incident_type", "status", "radius", "date_range", "time_range"
+                        "address", "longitude", "latitude", "limit", "offest"
+
+    Returns:
+    -----------
+    List of incidents filtered based on their query parameters
+    """
+    global rd
+    # defining lambda function to help filter data in a more readable manner
+    is_incident_type = lambda params, incident: (params["incident_type"].lower() == "all" 
+                                       or incident["issue_reported"].lower() == params["incident_type"].lower())
+    is_incident_status = lambda params, incident: (params["status"].lower() == "all" 
+                                         or  incident["traffic_report_status"].lower() == params["status"].lower())
+    is_in_time_range = lambda params, incident: (get_seconds(params["start_date"]) <= float(incident["published_date"]) <= get_seconds(params["end_date"]))
+    
+    in_bounds = lambda params, incident: is_in_bounds(check_address=False, 
+                            incident=incident, 
+                            radius_range=params["radius"], 
+                            lng=params["longitude"], 
+                            lat=params["lattitude"], 
+                            addr=params["address"])
+    # filtering data using list comprehension and defined lambda functions
+    data = [rd.hgetall(key) for key in rd.keys()
+            if is_incident_type(params, rd.hgetall(key))
+             and is_incident_status(params, rd.hgetall(key))
+              and is_in_time_range(params, rd.hgetall(key))
+               and  in_bounds(params, rd.hgetall(key))]
+    # truncating data based on offset and limit parameters
+    return data[params["offset"]:params["offset"] + params["limit"]]
 
 app = Flask(__name__)
 rd = get_redis_client(redis_url, redis_port, redis_db)
@@ -298,36 +364,7 @@ def incidents():
         params = get_query_params()
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
         try:
-            data = []
-            for key in rd.keys():
-                incident = rd.hgetall(key)
-                # query parameter filtering
-                # filter by offest
-                if params["offset"] > 0:
-                    params["offset"] -= 1
-                    continue
-                # filtering by incident type
-                if params["incident_type"].lower() != "all" and incident["issue_reported"].lower() != params["incident_type"].lower():
-                    continue
-                # filtering by incident status
-                elif params["status"].lower() != "both" and incident["traffic_report_status"].lower() != params["status"].lower():
-                    continue
-                # filtering by time range
-                elif not (get_seconds(params["start_date"]) <= float(incident["published_date"]) <= get_seconds(params["end_date"])):
-                    continue
-                # filtering by location/boundary (long and lat only)
-                elif is_in_bounds(check_address=False, 
-                                  incident=incident, 
-                                  radius_range=params["radius"], 
-                                  lng=params["longitude"], 
-                                  lat=params["lattitude"], 
-                                  addr=params["address"]) == False: 
-                    continue
-                #  "filtering" by limit
-                elif len(data) >= params["limit"]:
-                    break
-                data.append(rd.hgetall(key))
-            return data 
+            return filter_incidents_data(params)
         except Exception as e:
             print(f'ERROR: unable to get data\n{e}')
             return f'ERROR: unable to get data\n', 400
@@ -384,14 +421,31 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
+app.route("incidents/<incident_status>", methods=["GET"])
+app.route("incidents/<incident_type>", methods=["GET"])
+def get_incidents(incident_type:str = None, incident_status:str = None):
+    """
+    Function returns list of incidents based on incident_type or incident_status 
+    (but not both? is this even needed?)
+    """
+    params = get_query_params()
+    if len(params) == 2: return params # len of params is only equal to 2 if an error as occured
+    # sets incident_type or status depending on user request and returns resulting filtered data
+    params["incident_type"] = incident_type if incident_type is not None else "all"
+    params["status"] = incident_status if incident_status is not None else "all"
 
+    # try to return filtered data otherwise return error message
+    try:
+        return filter_incidents_data(params)
+    except Exception as e:
+        print(f"An error occurred while trying to filter data: {e}")
+        return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
 
 
 
 
 # routes to help people form queries
-# /ids
-@app.route('/ids', methods = ['GET'])
+@app.route('incidents/ids', methods = ['GET'])
 def ids():
     """/ids endpoint
     Description
@@ -422,7 +476,7 @@ def ids():
 
 
 # /issues
-@app.route('/issues', methods = ['GET'])
+@app.route('incidents/issues', methods = ['GET'])
 def issues():
     """/issues endpoint
 
@@ -456,7 +510,7 @@ def issues():
 
 
 # /published-range
-@app.route('/published-range', methods = ['GET'])
+@app.route('incidents/published-range', methods = ['GET'])
 def published_range():
     """/published-range endpoint
 
@@ -495,7 +549,7 @@ def published_range():
 
 
 # /updated-range
-@app.route('/updated-range', methods = ['GET'])
+@app.route('incidents/updated-range', methods = ['GET'])
 def updated_range():
     """/updated-range endpoint
 
@@ -534,7 +588,7 @@ def updated_range():
 
 
 # /coordinates-range
-@app.route('/coordinates-range', methods = ['GET'])
+@app.route('incidents/coordinates-range', methods = ['GET'])
 def coordinates_range():
     """/coordinates-range endpoint
 
@@ -586,20 +640,95 @@ def coordinates_range():
 
 
 
+@app.route("/jobs", methods=["GET"])
+def get_all_jobs():
+    """
+    Returns all jobs currently listed in rd_details
+    """
+    jobs = get_jobs("all", "all") 
+    if jobs is None:
+        return message_payload("Unable to retrieve any jobs from the database", False, 500), 500
+    return jobs
 
-@app.route("/jobs/plot", methods=["POST"])
-def make_plot():
-    # @TODO
-    # function to make timeseries, heatmap, and dotmap plots
-    # *use query paremeters to get plot kind*
-    pass
 
-app.route("/jobs/plot/<jid>", methods=["GET"])
-def get_plot(jid):
-    # @TODO
-    # function to get specific plot (use get_job_id() to be imported from a jobs.py module)
-    pass
+# all routes related to getting/posting jobs
+@app.route("/jobs/plot/heatmap", methods=["POST", "GET"])
+@app.route("/jobs/plot/dotmap", methods=["POST", "GET"])
+@app.route("/jobs/plot/timeseries", methods=["POST", "GET"])
+@app.route("/jobs/incidents", methods=["POST", "GET"])
+@app.route("/jobs/plot", methods=["GET"])
 
+@app.route("/jobs/incidents/<job_status>", methods=["GET"])
+@app.route("/jobs/plot/heatmap/<job_status>", methods=["GET"])
+@app.route("/jobs/plot/dotmap/<job_status>", methods=["GET"])
+@app.route("/jobs/plot/timeseries/<job_status>", methods=["GET"])
+@app.route("/jobs/plot/<job_status>", methods=["GET"])
+def handle_jobs(job_status = None):
+    path = request.path.split("/") # getting path helps decern what type of request is being received
+    # if user wants to post a job
+    if request.method == "POST":
+        # try to get inputted job from user. and check that it's valid
+        try:
+            job = request.get_json(force=True)
+            job['start'] = job.get('start', '1971-01-01')
+            job['end'] = job.get('end', '2037-12-30')
+            get_seconds(job["start"])
+            get_seconds(job["end"])
+        # catch invalid end/start string dates
+        except ValueError:
+            print(f"ERROR: invalid start date: {job['start']} or end date: {job['end']}") 
+            return message_payload(f"ERROR: invalid start date: {job['start']} \
+or end date: {job['end']}. \
+See jobs/help for more assistance", False, 404), 404
+        # catch any other unexpected errors
+        except Exception as e:
+            print(f"ERROR: an unexpected error has occured {e}")
+            return message_payload(f"ERROR: Unable to fufill job request: {e}", False, 500), 500
+        job_type = path[-1] # getting job_type from route path
+        # add job to queue based on job_type (aka...path of the request)
+        return json.dumps(add_job(job["start"], job["end"], job_type))
+    # else if user wants to get jobs
+    elif request.method == "GET":
+        jobs = [] # initializing jobs array
+        if job_status is None:
+            job_type = path[-1]
+            jobs = get_jobs(job_type, "all")
+        else:
+            # set default job_status to "all" if none was given
+            job_type = path[-2] 
+            jobs = get_jobs(job_type, job_status)
+        
+        if jobs is not None:
+            return jobs
+        else:
+            return message_payload("Unable get jobs", False, 500), 500
+
+# get plots/get incidents
+# help plots
+app.route("/jobs/<jid>", methods=["GET"])
+def get_job(jid):
+    # try to get job by id
+    # then return restults if they exists
+    try:
+        job = get_job_by_id(jid)
+    except Exception as e:
+        return message_payload("Error: Unable to find job with job id \
+                               '{jid}': {e}", True, 404), 404
+    if job:
+        if job.get("results") is not None:
+            return job["results"]
+        else:
+            return message_payload(f"Unable to retrieve results of job iwi is still being processed", False, 500), 500
+    else:
+        return message_payload(f"Job with jid: {jid} does not exist")
+
+
+
+app.route("jobs/help", methods=["GET"])
+def jobs_help():
+    """
+    Jobs help info 
+    """
 # /addresses ... way they're recorded is irrecular
 # /statuses
 # /plot/dotmap
