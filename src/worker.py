@@ -1,4 +1,4 @@
-from jobs import queue, update_job_status, get_job_by_id, rd_details
+from jobs import queue, update_job_status, get_job_by_id, add_job , rd_details
 import json
 import requests
 import os
@@ -8,7 +8,7 @@ imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"
 # worker.py
 @queue.worker # decorator keeps function "live" and always reading new messages from the queue
-def execute_job(jid):
+def execute_job(jid:str) -> None:
     """
     Retrieve a job id from the task queue and execute the job.
     Monitors the job to completion and updates the database accordingly.
@@ -19,7 +19,7 @@ def execute_job(jid):
         job_type = job.get("type")
         if job_type == "plot-timeseries":
             try:
-                issue_reported = job.get('issue_reported"')
+                issue_reported = job.get('issue_reported"') # this won't work
                 years = []
                 counts = []
                 for key in rd.keys():
@@ -105,22 +105,30 @@ def execute_job(jid):
                 ax.set_ylim(BBox[2],BBox[3])
                 ax.imshow(mp, zorder=0, extent = BBox, aspect= 'equal')
                 plt.savefig('plot.png') # temporarily saves in worker directory
-                with open('plot.png') as f:
-                    img = f.read()
-                update_job_status(jid, 'completed', img) # upload data to redis to return
+                # now upload image to imagur, then update job status and return
+                image_dict = upload_image('plot.png')
+                if image_dict:
+                    update_job_status(jid, 'completed', image_dict)
+                else:
+                    print("ERROR Uploading image to imagur, adding job back into the queue")
+                    add_job(job["start"], job["end"], job["type"])
+                    return 
+                # with open('plot.png') as f:
+                #     img = f.read()
+                # update_job_status(jid, 'completed', img) # upload data to redis to return
                 #@TODO replace with web link?
             except:
                 update_job_status(jid, "failed")
             pass
-        elif job_type == "post-data":
+        elif job_type == "incidents":
             try:
-                pass # insert post-data function here
+                pass # insert post  function here
             except:
-                update_job_status(jid, "failed")
+                update_job_status(jid, 'failed')
             pass
         else:
-            print("Unable to read job_type")
-            update_job_status(jid, "failed")
+            print('Unable to read job_type')
+            update_job_status(jid, 'failed')
             return
     ### update_job_status(jid, "completed", job)
     # fill in ...
@@ -151,82 +159,60 @@ def upload_image(path:str) -> dict:
     payload = {}
     # try to read input file, else print error
     try:
-        with open(path, "rb") as f:
-            payload["image"] = f.read()
+        with open(path, 'rb') as f:
+            payload['image'] = f.read()
     except Exception as e:
-        print(f"EXCEPTION CAUGHT...while trying to read file {path}: {e}")   
+        print(f'EXCEPTION CAUGHT...while trying to read file {path}: {e}')   
         return
-    header = {"Authorization": imagur_auth}
+    header = {'Authorization': imagur_auth}
     # try to make post request to imagur, else print errors
     try:
         response = requests.post(imagur_image_endpoint, headers=header, data=payload)
     except Exception as e:
-        print(f"EXCEPTION CAUGHT...while trying to upload file {path} onto imagur: {e}")
+        print(f'EXCEPTION CAUGHT...while trying to upload file {path} onto imagur: {e}')
+        return
     if response.status_code == 200:
-        content = json.loads(response.content.decode("utf-8"))
+        content = json.loads(response.content.decode('utf-8'))
         return {
-                "id": content["data"]["id"],
-                "link": content["data"]["link"], 
-                "deletehash": content["data"]["deletehash"],
-                "datetime": content["data"]["datetime"]
+                'id': content['data']['id'],
+                'link': content['data']['link'], 
+                'deletehash': content['data']['deletehash'],
+                'datetime': content['data']['datetime']
                 }
     else:
-        print(f"An error has occured uploading image to imagur. check header: {header}")
+        print(f'An error has occured uploading image to imagur. check header: {header}')
         return
-def save_image(image:dict) -> bool:
-    """
-    Description
-    -----------
-        - Saves image onto the redis database for images (db 3)
-    Args
-    -----------
-        - image(dict): expects dictionary with same keys as that returned in post_plot()
-
-    Returns
-        - Boolean; True if image was succesfully saved, otherwise False
-    -----------
-    """    
-    print(image)
-    key = f"{image.get('id')}:{image.get('link')}"
-    try:
-        return rd_details.hset(key, mapping=image) 
-    except Exception as e:
-        print(f"ERROR CAUGHT...while trying to save image onto redis: {e}")
-        return False
-    # returns True if successful else an exception is raise
 
 
-# this is what's returned from 'response' varible (nested dictionary with link, and delete)
 
-def delete_images() -> bool:
+def delete_image(jid:str) -> bool:
     '''
     Description
     -----------
-        - Deletes all images from redis database and imagur
+        - Deletes image from imagur
     Args
     -----------
-        - None
+        - jid(str): Job id that can be used to retrieve job image results
     Returns
     -----------
         - Boolean True is deletion was successful else False
     '''
     # deletes each image from image db from imagur
-    for key in rd_details.keys():
-        image = rd_details.hgetall(key)
-        if image.get("deletehash") != None:
-            header = {"Authorization": imagur_auth}
-            deletehash = image.get('deletehash')
-            try:
-                requests.delete(f"{imagur_image_endpoint}/{deletehash}", headers=header)
-            except:
-                print("ERROR deleting image from imagur. Maybe check header, and payload requirements?")
-                return False
-        else:
-            print(f"No delete hash attribute found in image: {image}")
+    job = get_job_by_id(jid)
+    image = job.get("results").get("image")
+    print(f"successfully retrieved job: {job} with jid: {jid}")
+    if image and image.get("deletehash") != None:
+        header = {"Authorization": imagur_auth}
+        deletehash = image.get('deletehash')
+        try:
+            requests.delete(f"{imagur_image_endpoint}/{deletehash}", headers=header)
+        except Exception as e:
+            print("ERROR deleting image from imagur: {e}")
             return False
-    
-    # deleting all images from Redis
-    rd_details.flushdb()
+    else:
+        print(f"No delete hash attribute found in image: {image}. \
+               Or the image attribute for this job: {job} does not exist")
+        return False
 
     return True
 
