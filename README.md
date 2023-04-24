@@ -16,7 +16,7 @@ Kubernetes cluster.
 
 * Dataset
 The dataset used in this project, [Austin Traffic Incidents Report](https://data.austintexas.gov/resource/dx9v-zd7x.json)
- is updated at a regular interval of five minutes
+is updated at a regular interval of five minutes
 and contains information such as:
  * incident type: Crash Urgent 
  * id: 551220DEEB362077F5DF356BDEBAF94F34F93F0C_1508860140000
@@ -60,7 +60,11 @@ This project contains the following:
 
 ## Running the Application
 **note: before running this project, please make sure this GitHub repository
-has been cloned: `git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git`.**
+has been cloned: 
+```
+`git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git`.
+```
+**
 
 * Flask
 
@@ -78,30 +82,37 @@ Run the image using
 * Dockerfile
 Another way to run this project is to build your own image using the Dockerfile
 provided in this repository. Use the command
+```
 `$ docker build -t <username>/<desired_image_name> . `. 
-
+```
 Replace <username> with your Docker Hub username.
 
 Run the image using 
+```
 `$ docker run -it --rm -p 5000:5000 <username>/<image_name> .`. 
+```
 
 * docker-compose
 To launch the app using Redis, use the command 
+```
 `$ docker-compose up -d`. 
-
+```
 To terminate the app, use 
+```
 `$ docker-compose down`.
-
+```
 * Kubernetes
 To run the app on Kubernetes, please use the following commadn: 
+```
 `$ kubectl apply -f <file_name>`. 
-
+```
 Replace <file_name> with the deployment/pvc/service file. Please ensure each `.yml`
 file has been applied. 
 
 To confirm that the pods are running, use the command 
+```
 `$ kubectl get pods`.
-
+```
 The result should be similar to the one below: 
 
 **insert sc of code**
@@ -110,8 +121,9 @@ In addition to the status of each of the pods, the above command should also ret
 the identication series of each pod. 
 
 Please `exec` into the python debug deployment file to use the k8s cluster:
+```
 `$ kubectl exec -it <**file_name**> -- /bin/bash`. 
-
+```
 This will redirect you into a terminal where you may now curl each of the routes. 
 
 ## Routes and Results
