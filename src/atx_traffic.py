@@ -386,6 +386,9 @@ def incidents():
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
 
+##############################################################
+##############        NOT DONE YET     #######################
+##############################################################
 @app.route('/incidents/<epoch>', methods = ['GET'])
 def incident_at_epoch(epoch):
 
@@ -432,6 +435,7 @@ def ids():
     -----------
         None
 
+
     Returns:
     -----------
         A list of all incident IDs as strings.
@@ -447,7 +451,7 @@ def ids():
         return f'ERROR: unable to get IDs', 400
 
 # /epochs
-@app.route('/epochs', methods = ['GET'])
+@app.route('/incidents/epochs', methods = ['GET'])
 def epochs():
 
  """/epochs endpoint
