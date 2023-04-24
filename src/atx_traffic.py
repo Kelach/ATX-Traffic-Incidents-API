@@ -277,6 +277,7 @@ def filter_incidents_data(params:dict) -> list:
                             lat=params["lattitude"], 
                             addr=params["address"])
     # filtering data using list comprehension and defined lambda functions
+    print("getting data")
     data = [rd.hgetall(key) for key in rd.keys()
             if is_incident_type(params, rd.hgetall(key))
              and is_incident_status(params, rd.hgetall(key))
