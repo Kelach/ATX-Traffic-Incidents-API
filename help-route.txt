@@ -12,16 +12,14 @@ Routes:
      2. GET: returns data 
      3. DELETE: deletes data 
 
-/incident/<type>: returns list of all incidents of a given incident type
+/incident: returns list of all incidents of a given incident type
 
-/incident/<status>: returns list of incidents of a given status: active or archived
+/epochs: returns list of epochs
 
-/incident/ids: returns list of all incident identification number
+/ids: returns list of incident identification numbers
 
-/incident/<epoch>: returns incident given at a specific time
+/issues: returns list of incident types
 
-/incident/<epoch>/location: returns precise location of accident at a given epoch
+/published-range: returns earliest and latest published incident dates
 
-/epoch: returns list of epochs 
-
-/at?radius=XXX&address=XXX: returns most recent incidents within a radius of a given address
+/coordinates-range: returns dictionary of maximum and minimum coordinates
