@@ -5,7 +5,7 @@
 
 ## Overview of Project
 
-###Description
+### Description
 
 This project is utilizes a real-time public traffic incident dataset from
 the Austin traffic reports RSS feed to build a Flask Web API project. Users
@@ -14,7 +14,7 @@ graphs ** explain what kind of graphs ** for the month. This project uses a
 pesistent Redis database for data storage and can also be deployed into a 
 Kubernetes cluster. 
 
-###Dataset
+### Dataset
 
 The dataset used in this project, [Austin Traffic Incidents Report](https://data.austintexas.gov/resource/dx9v-zd7x.json)
 is updated at a regular interval of five minutes
@@ -31,7 +31,7 @@ and contains information such as:
  **note: the above information was taken directly from the dataset**
  **also note to authors: please verify that link is correct (i doubt it)**
 
-###Files
+### Files
 
  This project contains the following: 
  1. Docker (2)
@@ -66,11 +66,11 @@ git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git .
 ```
 **
 
-###Flask **are we using flask?**
+### Flask **are we using flask?**
 
 **empty.........**
 
-###Docker Hub
+### Docker Hub
 This app has already been pushed to Docker Hub. To run, please pull the image
 using the command
 ```
@@ -81,7 +81,7 @@ Run the image using
 $ docker run -it --rm **name/file** .
 ```
 
-###Dockerfile
+### Dockerfile
 Another way to run this project is to build your own image using the Dockerfile
 provided in this repository. Use the command
 ```
@@ -103,7 +103,7 @@ To terminate the app, use
 ```
 $ docker-compose down
 ```
-###Kubernetes
+### Kubernetes
 To run the app on Kubernetes, please use the following commadn: 
 ```
 $ kubectl apply -f <file_name>
