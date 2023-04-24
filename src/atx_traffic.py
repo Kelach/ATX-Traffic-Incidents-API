@@ -423,20 +423,6 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
-app.route("incidents/<incident_status>", methods=["GET"])
-app.route("incidents/<incident_type>", methods=["GET"])
-def get_incidents(incident_type:str = None, incident_status:str = None):
-    """
-    Function returns list of incidents based on incident_type or incident_status 
-    (but not both? is this even needed?)
-    """
-    params = get_query_params()
-    if len(params) == 2: return params # len of params is only equal to 2 if an error as occured
-    # sets incident_type or status depending on user request and returns resulting filtered data
-    params["incident_type"] = incident_type if incident_type is not None else "all"
-    params["status"] = incident_status if incident_status is not None else "all"
-
-<<<<<<< HEAD
 ##############################################################
 ##############        NOT DONE YET     #######################
 ##############################################################
@@ -448,25 +434,27 @@ def incident_at_epoch(epoch):
  -----------
  This function returns the incident and all its information at a specified epoch.
  If the epoch is undetected, an error message with a 404 status code will be returned.
-
  Args
  ----
  epoch: user specified epoch time
-
  Returns
  -------
  incident: (dict) the incident and its information identified at a specified epoch 
  """
  global rd
-=======
-    # try to return filtered data otherwise return error message
-    try:
-        return filter_incidents_data(params)
-    except Exception as e:
-        print(f"An error occurred while trying to filter data: {e}")
-        return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
->>>>>>> 73aa389a19efdfec1b126dc3340b622dcbfc31f0
 
+ data = incidents()
+ output = {}
+ try:
+  for key in data:
+    if key['published_date'] == epoch:
+      output.append(rd.hget(key))
+
+  return output
+
+ except Exception as e:
+  print(f'ERROR: unable to find epoch/n{e}')
+  return f'ERROR: unable to find epoch', 404
 
 
 
