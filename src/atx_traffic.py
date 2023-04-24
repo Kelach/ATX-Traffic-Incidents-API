@@ -678,7 +678,7 @@ def get_plot(jid):
     pass
 
 # /addresses ... way they're recorded is irrecular
-# /statuses
+# /statuseshttps://data.austintexas.gov/resource/dx9v-zd7x.json
 # /plot/dotmap
 #     issue (string)
 #     published (date range -- strings?)
