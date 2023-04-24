@@ -104,7 +104,7 @@ To terminate the app, use
 $ docker-compose down
 ```
 ### Kubernetes
-To run the app on Kubernetes, please use the following commadn: 
+To run the app on Kubernetes, please use the following command: 
 ```
 $ kubectl apply -f <file_name>
 ```
