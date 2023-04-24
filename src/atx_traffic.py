@@ -1,5 +1,6 @@
 from flask import Flask, request
 from jobs import add_job, get_job_by_id, rd_details
+from typing import List
 import redis
 import requests
 import time
@@ -210,7 +211,7 @@ def get_query_params() -> dict:
     }
 
 
-def get_jobs(job_type:str, status:str) -> list[dict]:
+def get_jobs(job_type:str, status:str) -> List[dict]:
     """
     Description:
     -----------
@@ -445,7 +446,7 @@ def get_incidents(incident_type:str = None, incident_status:str = None):
 
 
 # routes to help people form queries
-@app.route('incidents/ids', methods = ['GET'])
+@app.route('/incidents/ids', methods = ['GET'])
 def ids():
     """/ids endpoint
     Description
@@ -476,7 +477,7 @@ def ids():
 
 
 # /issues
-@app.route('incidents/issues', methods = ['GET'])
+@app.route('/incidents/issues', methods = ['GET'])
 def issues():
     """/issues endpoint
 
@@ -510,7 +511,7 @@ def issues():
 
 
 # /published-range
-@app.route('incidents/published-range', methods = ['GET'])
+@app.route('/incidents/published-range', methods = ['GET'])
 def published_range():
     """/published-range endpoint
 
@@ -549,7 +550,7 @@ def published_range():
 
 
 # /updated-range
-@app.route('incidents/updated-range', methods = ['GET'])
+@app.route('/incidents/updated-range', methods = ['GET'])
 def updated_range():
     """/updated-range endpoint
 
@@ -588,7 +589,7 @@ def updated_range():
 
 
 # /coordinates-range
-@app.route('incidents/coordinates-range', methods = ['GET'])
+@app.route('/incidents/coordinates-range', methods = ['GET'])
 def coordinates_range():
     """/coordinates-range endpoint
 
@@ -679,7 +680,7 @@ def handle_jobs(job_status = None):
             print(f"ERROR: invalid start date: {job['start']} or end date: {job['end']}") 
             return message_payload(f"ERROR: invalid start date: {job['start']} \
 or end date: {job['end']}. \
-See jobs/help for more assistance", False, 404), 404
+See /help for more assistance", False, 404), 404
         # catch any other unexpected errors
         except Exception as e:
             print(f"ERROR: an unexpected error has occured {e}")
@@ -724,10 +725,10 @@ def get_job(jid):
 
 
 
-app.route("jobs/help", methods=["GET"])
-def jobs_help():
+app.route("/help", methods=["GET"])
+def help():
     """
-    Jobs help info 
+    API + jobs help info...
     """
 # /addresses ... way they're recorded is irrecular
 # /statuses
