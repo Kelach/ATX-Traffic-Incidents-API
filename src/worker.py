@@ -3,6 +3,7 @@ import json
 import requests
 import os
 import redis
+import time
 access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
 imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"
