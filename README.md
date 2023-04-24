@@ -16,21 +16,32 @@ Kubernetes cluster.
 
 ### Dataset
 
-The dataset used in this project, [Austin Traffic Incidents Report](https://data.austintexas.gov/resource/dx9v-zd7x.json)
-is updated at a regular interval of five minutes
+The [dataset](https://data.austintexas.gov/resource/dx9v-zd7x.json)
+used for this project is updated at a regular interval of five minutes
 and contains information such as:
- - incident type: Crash Urgent 
- - id: 551220DEEB362077F5DF356BDEBAF94F34F93F0C_1508860140000
- - coordinates:
-   - latitude: 30.275603
-   - longitude: -97.734873
- - street address:E 15th St & Red River St
- - publication date:2017-10-24T15:49:00.000Z
- - status: active vs archived
+ - incident id
+ - publication date: YYYY-MM-DDTHH:MM:SSSZ
+ - incident type
+ - location of incident: (latitude, longitude)
+ - latitude
+ - longitude
+ - street address: approximate location of incident
+ - incident status: active vs archived
 
- **note: the above information was taken directly from the dataset**
- 
- *please verify that link is correct *
+Here is a snippet of what the dataset looks like: 
+```
+{
+  "traffic_report_id":"EBF5283D22437BB974F4248BA0EC4E90F26D32CB_1520152566000",
+  "published_date":"2018-03-04T08:36:00.000Z",
+  "issue_reported":"LOOSE LIVESTOCK",
+  "location":"(30.256997,-97.611818)",
+  "latitude":"30.256997",
+  "longitude":"-97.611818",
+  "address":"N Fm 973 Rd & Fm 969 Rd", 
+  "traffic_report_status":"ARCHIVED",
+   "traffic_report_status_date_time":"1970-01-18T14:16:00.000Z"
+}
+```
 
 ### Files
 
@@ -98,7 +109,7 @@ Run the image using
 $ docker run -it --rm -p 5000:5000 <username>/<image_name> . 
 ```
 
-* docker-compose
+### docker-compose
 To launch the app using Redis, use the command 
 ```
 $ docker-compose up -d --build flask-app
