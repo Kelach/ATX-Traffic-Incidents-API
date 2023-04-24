@@ -19,41 +19,45 @@ Kubernetes cluster.
 The dataset used in this project, [Austin Traffic Incidents Report](https://data.austintexas.gov/resource/dx9v-zd7x.json)
 is updated at a regular interval of five minutes
 and contains information such as:
- * incident type: Crash Urgent 
- * id: 551220DEEB362077F5DF356BDEBAF94F34F93F0C_1508860140000
- * coordinates:
-   * latitude: 30.275603
-   * longitude: -97.734873
- * street address:E 15th St & Red River St
- * publication date:2017-10-24T15:49:00.000Z
- * status: active vs archived
+ - incident type: Crash Urgent 
+ - id: 551220DEEB362077F5DF356BDEBAF94F34F93F0C_1508860140000
+ - coordinates:
+   - latitude: 30.275603
+   - longitude: -97.734873
+ - street address:E 15th St & Red River St
+ - publication date:2017-10-24T15:49:00.000Z
+ - status: active vs archived
 
  **note: the above information was taken directly from the dataset**
- **also note to authors: please verify that link is correct (i doubt it)**
+ 
+ *please verify that link is correct *
 
 ### Files
 
  This project contains the following: 
+ 
  1. Docker (2)
-   * Dockerfile
-   * docker-compose.yml
+    * Dockerfile
+    * docker-compose.yml
 
  2. kubernetes/test (7)
-  * py-debug-deployment.yml
-  * test-api-deployment.yml
-  * test-api-service.yml
-  * test-redis-deployment.yml
-  * test-redis-pvc.yml
-  * test-redis-service.yml
-  * test-wrk-deployment.yml
+   * py-debug-deployment.yml
+   * test-api-deployment.yml
+   * test-api-service.yml
+   * test-redis-deployment.yml
+   * test-redis-pvc.yml
+   * test-redis-service.yml
+   * test-wrk-deployment.yml
+ 
  3. src (5)
-  * testing (1)
-    * test_atx_traffic.py
-  * atx_traffic.py
-  * config.yaml
-  * jobs.py
-  * map.png
-  * worker.py
+   * testing (1)
+     * test_atx_traffic.py
+   * atx_traffic.py
+   * config.yaml
+   * jobs.py
+   * map.png
+   * worker.py
+ 
  4. help-route.txt
 
  5. README
@@ -64,7 +68,7 @@ has been cloned:
 ```
 git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git .
 ```
-**
+
 
 ### Flask **are we using flask?**
 
@@ -97,7 +101,7 @@ $ docker run -it --rm -p 5000:5000 <username>/<image_name> .
 * docker-compose
 To launch the app using Redis, use the command 
 ```
-$ docker-compose up -d 
+$ docker-compose up -d --build flask-app
 ```
 To terminate the app, use 
 ```
