@@ -436,12 +436,36 @@ def get_incidents(incident_type:str = None, incident_status:str = None):
     params["incident_type"] = incident_type if incident_type is not None else "all"
     params["status"] = incident_status if incident_status is not None else "all"
 
+<<<<<<< HEAD
+##############################################################
+##############        NOT DONE YET     #######################
+##############################################################
+@app.route('/incidents/<epoch>', methods = ['GET'])
+def incident_at_epoch(epoch):
+
+ """
+ Description
+ -----------
+ This function returns the incident and all its information at a specified epoch.
+ If the epoch is undetected, an error message with a 404 status code will be returned.
+
+ Args
+ ----
+ epoch: user specified epoch time
+
+ Returns
+ -------
+ incident: (dict) the incident and its information identified at a specified epoch 
+ """
+ global rd
+=======
     # try to return filtered data otherwise return error message
     try:
         return filter_incidents_data(params)
     except Exception as e:
         print(f"An error occurred while trying to filter data: {e}")
         return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
+>>>>>>> 73aa389a19efdfec1b126dc3340b622dcbfc31f0
 
 
 
@@ -458,6 +482,7 @@ def ids():
     Args:
     -----------
         None
+
 
     Returns:
     -----------
