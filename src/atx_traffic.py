@@ -386,9 +386,37 @@ def incidents():
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
 
+@app.route('/incidents/<epoch>', methods = ['GET'])
+def incident_at_epoch(epoch):
 
+ """
+ Description
+ -----------
+ This function returns the incident and all its information at a specified epoch.
+ If the epoch is undetected, an error message with a 404 status code will be returned.
 
+ Args
+ ----
+ epoch: user specified epoch time
 
+ Returns
+ -------
+ incident: (dict) the incident and its information identified at a specified epoch 
+ """
+ global rd
+
+ data = incidents()
+ output = {}
+ try:
+  for key in data:
+    if key['published_date'] == epoch:
+      output.append(rd.hget(key))
+
+  return output
+
+ except Exception as e:
+  print(f'ERROR: unable to find epoch/n{e}')
+  return f'ERROR: unable to find epoch', 404
 
 # routes to help people form queries
 # /ids
@@ -417,7 +445,6 @@ def ids():
     except Exception as e:
         print(f'ERROR: unable to get IDs\n{e}')
         return f'ERROR: unable to get IDs', 400
-
 
 # /epochs
 @app.route('/epochs', methods = ['GET'])
@@ -463,7 +490,7 @@ def epochs():
      elif len(result) >= params['limit']:
        break
 
-      result.append(rd.hget(key))
+      result.append(rd.hget(key, 'published_date'))
    return result
 
  except Exception as e:
