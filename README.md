@@ -28,7 +28,7 @@ and contains information such as:
  * status: active vs archived
 
  **note: the above information was taken directly from the dataset**
- ** also note to authors: please verify that link is correct (i doubt it)**
+ **also note to authors: please verify that link is correct (i doubt it)**
 
 * Files
 This project contains the following: 
@@ -60,15 +60,20 @@ This project contains the following:
 
 ## Running the Application
 **note: before running this project, please make sure this GitHub repository
-has been cloned: `git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git`. **
+has been cloned: `git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git`.**
 
 * Flask
 
 * Docker Hub
 This app has already been pushed to Docker Hub. To run, please pull the image
 using the command
-`$ docker pull **whoever pushed it**/**file_name**`. Run the image using 
+```
+`$ docker pull **whoever pushed it**/**file_name**`. 
+```
+Run the image using 
+```
 `$ docker run -it --rm **name/file** .`. 
+```
 
 * Dockerfile
 Another way to run this project is to build your own image using the Dockerfile
