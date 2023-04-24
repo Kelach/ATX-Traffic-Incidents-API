@@ -131,7 +131,7 @@ This will redirect you into a terminal where you may now curl each of the routes
 ## Routes and Results
 
 | Routes | Methods | Description | Results |
-|-------------|-----------------|
+|-------| ------|-------|----------|
 |`/` | `GET` | returns a welcoming message | string |
 |`/help` | `GET` | returns description of each route | string | 
 | `/incidents`| `POST` `GET` `DELETE` | Posts, retrieves, or deletes data depending on method used | list of dictionaries |
