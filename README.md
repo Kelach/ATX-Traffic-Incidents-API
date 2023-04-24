@@ -33,27 +33,27 @@ and contains information such as:
 
 * Files
 
-  This project contains the following: 
-  1. Docker (2)
-    * Dockerfile
-    * docker-compose.yml
+ This project contains the following: 
+ 1. Docker (2)
+   * Dockerfile
+   * docker-compose.yml
 
-  2. kubernetes/test (7)
-    * py-debug-deployment.yml
-    * test-api-deployment.yml
-    * test-api-service.yml
-    * test-redis-deployment.yml
-    * test-redis-pvc.yml
-    * test-redis-service.yml
-    * test-wrk-deployment.yml
+ 2. kubernetes/test (7)
+  * py-debug-deployment.yml
+  * test-api-deployment.yml
+  * test-api-service.yml
+  * test-redis-deployment.yml
+  * test-redis-pvc.yml
+  * test-redis-service.yml
+  * test-wrk-deployment.yml
  3. src (5)
-    * testing (1)
-      * test_atx_traffic.py
-    * atx_traffic.py
-    * config.yaml
-    * jobs.py
-    * map.png
-    * worker.py
+  * testing (1)
+    * test_atx_traffic.py
+  * atx_traffic.py
+  * config.yaml
+  * jobs.py
+  * map.png
+  * worker.py
  4. help-route.txt
 
  5. README
