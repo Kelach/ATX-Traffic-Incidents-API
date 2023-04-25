@@ -10,13 +10,13 @@
 This project is utilizes a real-time public traffic incident dataset from
 the Austin traffic reports RSS feed to build a Flask Web API project. Users
 can query information regarding live incidents in the Travis County area and view
-graphs ** explain what kind of graphs ** for the month. This project uses a
+graphs **explain what kind of graphs** for the month. This project uses a
 pesistent Redis database for data storage and can also be deployed into a 
 Kubernetes cluster. 
 
 ### Dataset
 
-The [dataset](https://data.austintexas.gov/resource/dx9v-zd7x.json)
+The [Real-Time Updated Austin Traffic Incident dataset](https://data.austintexas.gov/resource/dx9v-zd7x.json)
 used for this project is updated at a regular interval of five minutes
 and contains information such as:
  - incident id
@@ -112,7 +112,7 @@ $ docker run -it --rm -p 5000:5000 <username>/<image_name> .
 ### docker-compose
 To launch the app using Redis, use the command 
 ```
-$ docker-compose up -d --build flask-app
+$ docker-compose up
 ```
 To terminate the app, use 
 ```
@@ -150,13 +150,21 @@ This will redirect you into a terminal where you may now curl each of the routes
 |`/` | `GET` | returns a welcoming message(string) |
 |`/help` | `GET` | returns description of each route (string) | 
 | `/incidents`| `POST` `GET` `DELETE` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
-| `/epochs` | `GET` | returns epochs (list) |
-| `/ids` | `GET` | returns incident IDs (list) |
-| `/issues`| `GET` | returns incident type (list)|
-| `/published-range` | `GET` | earliest and latest published dates (string) |
-| `/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
-| `/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
-| `/jobs/plot` | `GET` | ...... |
-| `/jobs/plot/<jid>` | `GET` | ....... | 
+| `/incidents/epochs` | `GET` | returns epochs (list) |
+|`/incidents/<epoch>` | `GET` | (list) returns incident at given epoch | 
+| `/incidents/ids` | `GET` | returns incident IDs (list) |
+| `/incidents/issues`| `GET` | returns incident type (list)|
+| `/incidents/published-range` | `GET` | earliest and latest published dates (string) |
+| `/incidents/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
+| `/incidents/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
+| `/jobs`| `GET`| returns all jobs listed in rd_details|
+| `/jobs/plot/heatmap` | `GET` | ...... |
+| `/jobs/plot/<dotmap>` | `GET` | ....... | 
+| `/jobs/plot/<timeseries>` | `GET` | ....... | 
+| `/jobs/incidents` | `GET` | ....... | 
+| `/jobs/incidents/<jobs_status>` | `GET` | ....... | 
+| `/jobs/plot/heatmap/<jobs_status>` | `GET` | ....... | 
+| `/jobs/plot/timeseries/<jobs_status>` | `GET` | ....... |
+|`/job/plot/<job_status>`|  `GET` | ........|
 
 ## Results
