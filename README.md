@@ -47,36 +47,36 @@ Here is a snippet of what the dataset looks like:
 
  Below is a overview of the file structure this project is comprised of: 
  
-ATX-Traffic-Incidents-API/
-    ├── Docker
-    │   ├── Dockerfile
-    │   └── docker-compose.yaml
-    ├── Kubernetes
-    │   ├── prod
-    │   │   ├── prod-api-deployment.yml
-    │   │   ├── prod-api-service.yml
-    │   │   ├── py-debug-deployment.yml
-    │   │   ├── db-pvc.yml
-    │   │   ├── db-service.yml
-    │   │   └── wrk-deployment.yml
-    │   └── test
-    │       ├── test-api-deployment.yml
-    │       ├── test-api-service.yml
-    │       ├── test-redis-deployment.yml
-    │       ├── test-redis-pvc.yml
-    │       ├── test-redis-service.yml
-    │       └── test-wrk-deployment.yml
-    ├── README.md
-    ├── help-route.txt
-    └── src
-        ├── atx_incidents.py
-        ├── config.yaml
-        ├── worker.py
-        ├── jobs.py
-        ├── worker.py
-        └── testing
-            ├── __init__.py
-            └── test_atx_incidents.py
+    ATX-Traffic-Incidents-API/
+        ├── Docker
+        │   ├── Dockerfile
+        │   └── docker-compose.yaml
+        ├── Kubernetes
+        │   ├── prod
+        │   │   ├── prod-api-deployment.yml
+        │   │   ├── prod-api-service.yml
+        │   │   ├── py-debug-deployment.yml
+        │   │   ├── db-pvc.yml
+        │   │   ├── db-service.yml
+        │   │   └── wrk-deployment.yml
+        │   └── test
+        │       ├── test-api-deployment.yml
+        │       ├── test-api-service.yml
+        │       ├── test-redis-deployment.yml
+        │       ├── test-redis-pvc.yml
+        │       ├── test-redis-service.yml
+        │       └── test-wrk-deployment.yml
+        ├── README.md
+        ├── help-route.txt
+        └── src
+            ├── atx_incidents.py
+            ├── config.yaml
+            ├── worker.py
+            ├── jobs.py
+            ├── worker.py
+            └── testing
+                ├── __init__.py
+                └── test_atx_incidents.py
 
           
 
