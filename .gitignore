@@ -1,8 +1,12 @@
+
 # source data
 *.json
 
 # vscode folder
 .vscode
+
+# plot images
+.png
 
 # redis data
 /data
