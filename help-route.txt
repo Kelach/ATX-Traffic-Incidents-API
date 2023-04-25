@@ -4,7 +4,8 @@ Routes:
 
 /help: returns description of each route
 
-/incidents: DEALS with data depending on the method called -- change the word deals
+/incidents: manages
+ data depending on the method called
 
    Possible Methods: 
 
@@ -12,14 +13,38 @@ Routes:
      2. GET: returns data 
      3. DELETE: deletes data 
 
-/incident: returns list of all incidents of a given incident type
+/incidents/epochs: returns list of epochs
 
-/epochs: returns list of epochs
+/incidents/<epoch>: returns list of incident at a given epoch
 
-/ids: returns list of incident identification numbers
+/incidents/ids: returns list of incident identification numbers
 
-/issues: returns list of incident types
+/incidents/issues: returns list of incident types 
 
-/published-range: returns earliest and latest published incident dates
+/incidents/published-range: returns earliest and latest published incident dates
 
-/coordinates-range: returns dictionary of maximum and minimum coordinates
+/incidents/updated-range: returns earliest and newest updated date in the database
+
+/incidents/coordinates-range: returns dictionary of maximum and minimum coordinates
+
+/jobs: returns all jobs listed in rd_details
+
+/jobs/plot/heatmap: 
+
+/jobs/plot/dotmap: 
+
+/jobs/plot/timeseries:
+
+/jobs/incidents:
+
+/jobs/plot:
+
+/jobs/incidents/<job_status>:
+
+/jobs/plot/heatmap/<job_status>:
+
+/jobs/plot/dotmap/<job_status>:
+
+/jobs/plot/timeseries/<job_status>:
+
+/jobs/plot/<job_status>:
