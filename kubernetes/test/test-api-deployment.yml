@@ -24,7 +24,7 @@ spec:
           env:
             - name: REDIS_HOSTNAME
               value: $(TEST_REDIS_SERVICE_SERVICE_HOST)
-          command: ['python3', 'src/atx_traffic.py']
+          command: ['python3', , '-u', 'src/atx_traffic.py']
           ports:
             - name: http
               containerPort: 5000

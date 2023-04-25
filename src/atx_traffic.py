@@ -277,6 +277,7 @@ def filter_incidents_data(params:dict) -> list:
                             lat=params["lattitude"], 
                             addr=params["address"])
     # filtering data using list comprehension and defined lambda functions
+    print("getting data")
     data = [rd.hgetall(key) for key in rd.keys()
             if is_incident_type(params, rd.hgetall(key))
              and is_incident_status(params, rd.hgetall(key))
@@ -422,6 +423,7 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
+<<<<<<< HEAD
 app.route("incidents/<incident_status>", methods=["GET"])
 app.route("incidents/<incident_type>", methods=["GET"])
 def get_incidents(incident_type:str = None, incident_status:str = None):
@@ -435,6 +437,8 @@ def get_incidents(incident_type:str = None, incident_status:str = None):
     params["incident_type"] = incident_type if incident_type is not None else "all"
     params["status"] = incident_status if incident_status is not None else "all"
 
+=======
+>>>>>>> 92befc06154eb532693756d2b2b90cffbf1db3e0
 ##############################################################
 ##############        NOT DONE YET     #######################
 ##############################################################
@@ -446,23 +450,36 @@ def incident_at_epoch(epoch):
  -----------
  This function returns the incident and all its information at a specified epoch.
  If the epoch is undetected, an error message with a 404 status code will be returned.
-
  Args
  ----
  epoch: user specified epoch time
-
  Returns
  -------
  incident: (dict) the incident and its information identified at a specified epoch 
  """
  global rd
+<<<<<<< HEAD
  # try to return filtered data otherwise return error message
  try:
     return filter_incidents_data(params)
  except Exception as e:
     print(f"An error occurred while trying to filter data: {e}")
     return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
+=======
+>>>>>>> 92befc06154eb532693756d2b2b90cffbf1db3e0
 
+ data = incidents()
+ output = {}
+ try:
+  for key in data:
+    if key['published_date'] == epoch:
+      output.append(rd.hget(key))
+
+  return output
+
+ except Exception as e:
+  print(f'ERROR: unable to find epoch/n{e}')
+  return f'ERROR: unable to find epoch', 404
 
 
 

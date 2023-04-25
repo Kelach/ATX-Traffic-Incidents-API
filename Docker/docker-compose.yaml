@@ -2,6 +2,14 @@
 version: '3'
 
 services:
+  redis-db:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    command: --save 1 1
+    volumes:
+      - ../data:/data
+    user: "1000:1000"
 
   flask-api:
     build:
@@ -12,7 +20,7 @@ services:
     image: kelach/test_atx_incidents
     ports:
       - "5000:5000"
-    command: python3 ../src/atx_traffic.py
+    command: python3 -u ../src/atx_traffic.py
     volumes:
       - ./config.yaml:/config.yaml
     environment:
@@ -25,15 +33,9 @@ services:
     depends_on:
       - redis-db
     image: kelach/test_atx_incidents
-    command: python3 ../src/worker.py    
+    command: python3 -u ../src/worker.py    
     environment:
       - REDIS_HOSTNAME=redis-db
+    restart: unless-stopped
 
-  redis-db:
-    image: redis:7
-    ports:
-      - "6379:6379"
-    command: --save 1 1
-    volumes:
-      - ../data:/data
-    user: "1000:1000"
+
