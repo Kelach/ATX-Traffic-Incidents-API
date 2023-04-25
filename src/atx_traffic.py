@@ -1,5 +1,5 @@
 from flask import Flask, request
-from jobs import add_job, get_job_by_id, rd_details
+from jobs import add_job, get_job_by_id, rd_details, delete_all_jobs
 from typing import List
 import redis
 import requests
@@ -142,14 +142,13 @@ def get_query_params() -> dict:
             - Dictionary object that pairs each query_parameter (key) with its associated value (inputted by the user).
                 The dictionary keys are as follows: 
                     - "incident_type", "status", "radius", "date_range", "time_range"
-                      "address", "longitude", "latitude", "limit", "offest"
+                      "address", "longitude", "latitude", "limit", "offest" 
             - If an error has occured a tuple of length two is returned containing an error message and a status code
     """
     # Query Parameters
     # incident type and status don't need input checks (based on how they are currently implemented)
     incident_type = request.args.get("type", "all") # default to all incident_types
-    status = request.args.get("status", "all") # defualt to all statues
-
+    status = request.args.get("status", "all") # defualt to all statuses
     # radius
     try:
         radius = float(request.args.get("radius", float("inf"))) # default radius is infinity
@@ -178,11 +177,10 @@ def get_query_params() -> dict:
         return (message_payload(f"Error: longitude and latitude coordinates must be numbers only.", False, 404), 404)
     except Exception as e:
         return (message_payload(f"Error getting longitude and latitude parameters: {e}", False, 404), 404)
-    finally:
-        if (not -90 <= lattitude <= 90
-            or not -180 <= longitude <= 180):
-            msg = f"Error: longitude and latitude coordinates must be within the ranges -90 <-> 90 and -180 <-> 180 respectively"
-            return (message_payload(msg, False, 404), 404)
+    if (not -90 <= lattitude <= 90
+        or not -180 <= longitude <= 180):
+        msg = f"Error: longitude and latitude coordinates must be within the ranges -90 <-> 90 and -180 <-> 180 respectively"
+        return (message_payload(msg, False, 404), 404)
 
     # offset + limit
     try:
@@ -192,10 +190,9 @@ def get_query_params() -> dict:
         return (message_payload(f"Error: limit and offset input parameters must be positive integers only",False, 404), 404)
     except Exception as e:
         return (message_payload(f"Error getting limit and offset parameters: {e}", False, 404), 404)
-    finally:
-        if offset < 0 or limit < 0:
-            return (message_payload(f"Error: limit and offset input parameters must be positive integers only",False, 404), 404)
-
+    if offset < 0 or limit < 0:
+        return (message_payload(f"Error: limit and offset input parameters must be positive integers only",False, 404), 404)
+    
     # need to check address, but may not include addresses at all
     address = request.args.get("address", None) # default None address
     return {"incident_type":incident_type,
@@ -207,11 +204,11 @@ def get_query_params() -> dict:
             "longitude":longitude,
             "lattitude":lattitude,
             "offset":offset,
-            "limit":limit
+            "limit":limit,
     }
 
 
-def get_jobs(job_type:str, status:str) -> List[dict]:
+def filter_jobs(params:dict) -> List[dict]:
     """
     Description:
     -----------
@@ -229,17 +226,78 @@ def get_jobs(job_type:str, status:str) -> List[dict]:
         List of dictionaries (each dictionary being a job 'object')
     """
     # Lambda functions defined below help filter jobs by job_type and status
-    is_type = lambda job : job.get("type") in job_type or job_type == "all"
-    is_status = lambda job : job.get("status") == status or status == "all"
-
+    is_type = lambda job : params['job_type'].lower() in job.get("job_type").lower() or params['job_type'].lower() == "all"
+    is_status = lambda job : job.get("status").lower() == params['status'].lower() or params['status'].lower() == "all"
+    print(f"found keys: {rd_details.keys()}")
     # first retrieve all jobs 
     try:
-        all_jobs = [rd_details.hget(key) for key in rd_details.keys()]
+        all_jobs = [json.loads(rd_details.get(key)) 
+                    for key in rd_details.keys()[params["offset"]: params["offset"] + params["limit"]]]
     except Exception as e:
         print("ERROR retrieving all jobs from redis database: {e}")
         return 
+    print("retrieved jobs:", all_jobs)
     # then filter jobs by type and status and return 
     return [job for job in all_jobs if is_type(job) and is_status(job)]
+
+
+
+
+def post_incidents_data()-> None:
+    """
+    Description:
+    -----------
+    Helper function to save the entire Austin traffic incidents dataset
+    into the redis database
+
+    Args:
+    -----------
+    
+    Returns:
+    -----------
+    None
+    """
+    global rd, source_url, AUSTIN_LAT, AUSTIN_LON, LAT_TOL, LON_TOL
+    the_json = requests.get(url = source_url).json()
+    cols = []
+    flags = []
+    for col_json in the_json['meta']['view']['columns']:
+        cols.append(col_json['fieldName'].replace(':', ''))
+        flags.append(col_json.get('flags'))
+    data = the_json['data']
+    jj = 0 # Only for indexing purposes
+    for datum in data:
+        key = datum[cols.index('traffic_report_id')]
+        for ii in range(0, len(cols)):
+            if datum[ii] == None:
+                datum[ii] = ''
+            # Data cleaning
+            if (cols[ii] == 'latitude' \
+                    and datum[ii].replace('.', '').isnumeric()) \
+                    and abs(float(datum[ii]) - AUSTIN_LAT) > LAT_TOL:
+                        datum[ii] = ''
+                        try:
+                            ind = datum.index('longitude')
+                            datum[ind] = ''
+                            rd.hset(key, cols[ind], datum[ind])
+                        except:
+                            pass
+            elif (cols[ii] == 'longitude' \
+                    and datum[ii].replace('.', '').isnumeric()) \
+                    and abs(float(datum[ii]) - AUSTIN_LON) > LON_TOL:
+                        datum[ii] = ''
+                        try:
+                            ind = datum.index('latitude')
+                            datum[ind] = ''
+                            rd.hset(key, cols[ind], datum[ind])
+                        except:
+                            pass
+            # Restrict columns to non-hidden ones
+            if flags[ii] is None or 'hidden' not in flags[ii]:
+                rd.hset(key, cols[ii], datum[ii])
+        jj = jj + 1
+        if jj % 1000 == 0:
+            print(f'{jj} entries posted')
 
 
 
@@ -278,13 +336,14 @@ def filter_incidents_data(params:dict) -> list:
                             addr=params["address"])
     # filtering data using list comprehension and defined lambda functions
     print("getting data")
-    data = [rd.hgetall(key) for key in rd.keys()
+    data = [rd.hgetall(key) for key in rd.keys()[params["offset"]:params["offset"] + params["limit"]] # truncating + offsetting
             if is_incident_type(params, rd.hgetall(key))
              and is_incident_status(params, rd.hgetall(key))
               and is_in_time_range(params, rd.hgetall(key))
                and  in_bounds(params, rd.hgetall(key))]
+    print("succcesfully got data!")
     # truncating data based on offset and limit parameters
-    return data[params["offset"]:params["offset"] + params["limit"]]
+    return data
 
 app = Flask(__name__)
 rd = get_redis_client(redis_url, redis_port, redis_db)
@@ -333,7 +392,7 @@ def nil():
 #     latitude/longitude center and radius (double)
 #     address contains (string)
 #     status (string)
-@app.route('/incidents', methods = ['GET', 'POST', 'DELETE'])
+@app.route('/incidents', methods = ['GET', 'DELETE'])
 def incidents():
     """/incidents endpoint
 
@@ -354,64 +413,27 @@ def incidents():
             the database. If there is an error, a descriptive string will be
             returned with a 404 status code. Note that sparse attributes are
             excluded.
-        If the method is SET, a text message informing the user of success. If
+        If the method is POST, a text message informing the user of success. If
             there is an error, a descriptive string will be returned with a 404
             status code.
         If the method is DELETE, a text message informing the user of success.
             If there is an error, a descriptive string will be returned with a
             404 status code.
     """
-    global rd, source_url, AUSTIN_LAT, AUSTIN_LON, LAT_TOL, LON_TOL
+    global rd
     if request.method == 'GET':
+        print("getting data")
         params = get_query_params()
         if len(params) == 2: return params # params is only of length 2 if an error as occured.
         try:
+            print(f"trying to filter incidents by parameters {params}")
             return filter_incidents_data(params)
         except Exception as e:
             print(f'ERROR: unable to get data\n{e}')
             return f'ERROR: unable to get data\n', 400
     elif request.method == 'POST':
         try:
-            the_json = requests.get(url = source_url).json()
-            cols = []
-            flags = []
-            for col_json in the_json['meta']['view']['columns']:
-                cols.append(col_json['fieldName'].replace(':', ''))
-                flags.append(col_json.get('flags'))
-            data = the_json['data']
-            jj = 0 # Only for indexing purposes
-            for datum in data:
-                key = datum[cols.index('traffic_report_id')]
-                for ii in range(0, len(cols)):
-                    if datum[ii] == None:
-                        datum[ii] = ''
-                    # Data cleaning
-                    if (cols[ii] == 'latitude' \
-                            and datum[ii].replace('.', '').isnumeric()) \
-                            and abs(float(datum[ii]) - AUSTIN_LAT) > LAT_TOL:
-                                datum[ii] = ''
-                                try:
-                                    ind = datum.index('longitude')
-                                    datum[ind] = ''
-                                    rd.hset(key, cols[ind], datum[ind])
-                                except:
-                                    pass
-                    elif (cols[ii] == 'longitude' \
-                            and datum[ii].replace('.', '').isnumeric()) \
-                            and abs(float(datum[ii]) - AUSTIN_LON) > LON_TOL:
-                                datum[ii] = ''
-                                try:
-                                    ind = datum.index('latitude')
-                                    datum[ind] = ''
-                                    rd.hset(key, cols[ind], datum[ind])
-                                except:
-                                    pass
-                    # Restrict columns to non-hidden ones
-                    if flags[ii] is None or 'hidden' not in flags[ii]:
-                        rd.hset(key, cols[ii], datum[ii])
-                jj = jj + 1
-                if jj % 1000 == 0:
-                    print(f'{jj} entries posted')
+            post_incidents_data()
             return 'Data successfully posted\n', 200
         except Exception as e:
             print(f'ERROR: unable to post data\n{e}')
@@ -423,6 +445,9 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
+        
+
+
 ##############################################################
 ##############        NOT DONE YET     #######################
 ##############################################################
@@ -478,13 +503,32 @@ def ids():
     """
     global rd
     try:
-        result = []
-        for key in rd.keys():
-            result.append(rd.hget(key, 'traffic_report_id'))
-        return result
+        params = get_query_params()
+        if len(params) == 2: return params # len of params is only 2 if an error has occured
+        data = filter_incidents_data(params)
+        return [incident['traffic_report_id'] for incident in data]
     except Exception as e:
         print(f'ERROR: unable to get IDs\n{e}')
         return f'ERROR: unable to get IDs', 400
+
+
+
+
+@app.route("/incidents/ids/<id>")
+def get_incident_by_id(id):
+    global rd
+
+    for key in rd.keys():
+        try:
+            incident = rd.hgetall(key)
+            if incident["traffic_report_id"] == id:
+                return incident
+        except:
+            print("Unable to retrieve ids from redis database")
+            return message_payload("Unable to retrieve ids from redis database. Please try again later", False, 500), 500
+    
+    return message_payload("ERROR: No incident exists with the id: {id}", False, 404), 404
+        
 
 
 
@@ -708,15 +752,37 @@ def coordinates_range():
 
 
 
-@app.route("/jobs", methods=["GET"])
-def get_all_jobs():
+@app.route("/jobs", methods=["GET", "DELETE"])
+def jobs():
     """
     Returns all jobs currently listed in rd_details
     """
-    jobs = get_jobs("all", "all") 
-    if jobs is None:
-        return message_payload("Unable to retrieve any jobs from the database", False, 500), 500
-    return jobs
+    if request.method == "GET":
+        # try to get params
+        try:
+            params = get_query_params()
+        except Exception as e:
+            print(f"Unable to get query parameters: {e}")
+            return message_payload("Unable to retrieve any jobs from the database", False, 500), 500           
+        params["job_type"] = "all"
+        # then try to get filtered jobs and return the jobs if no error has occured
+        jobs = filter_jobs(params) 
+        if jobs is None:
+            return message_payload("Unable to retrieve any jobs from the database", False, 500), 500
+        return jobs
+    elif request.method == "DELETE":
+        try:
+            print("trying to delete job...")
+            job = add_job("1971-01-01", "2037-12-30", "delete")
+        except Exception as e:
+            print(f"Unable add job: {e}")
+            return message_payload("Unable to delete jobs", False, 500), 500
+        if job:
+            return message_payload("Deleting all jobs and their results from memory...")
+        else:
+            return message_payload("Unable to delete jobs", False, 500), 500
+
+
 
 
 # all routes related to getting/posting jobs
@@ -725,13 +791,19 @@ def get_all_jobs():
 @app.route("/jobs/plot/timeseries", methods=["POST", "GET"])
 @app.route("/jobs/incidents", methods=["POST", "GET"])
 @app.route("/jobs/plot", methods=["GET"])
+def handle_jobs():
+    """
+    Description:
+    -----------
+    Handler function to server all routes related to getting and posting new jobs.
+        Supports 'limit', 'offest', 'status' query parameters.
 
-@app.route("/jobs/incidents/<job_status>", methods=["GET"])
-@app.route("/jobs/plot/heatmap/<job_status>", methods=["GET"])
-@app.route("/jobs/plot/dotmap/<job_status>", methods=["GET"])
-@app.route("/jobs/plot/timeseries/<job_status>", methods=["GET"])
-@app.route("/jobs/plot/<job_status>", methods=["GET"])
-def handle_jobs(job_status = None):
+    Args:
+    -----------
+
+    Returns:
+    -----------
+    """
     path = request.path.split("/") # getting path helps decern what type of request is being received
     # if user wants to post a job
     if request.method == "POST":
@@ -752,47 +824,51 @@ See /help for more assistance", False, 404), 404
         except Exception as e:
             print(f"ERROR: an unexpected error has occured {e}")
             return message_payload(f"ERROR: Unable to fufill job request: {e}", False, 500), 500
-        job_type = path[-1] # getting job_type from route path
+        job_type = path[-1] if path[-2] != "plot" else "plot-" + path[-1] # getting job_type from route path
         # add job to queue based on job_type (aka...path of the request)
+        print(f"adding job: {job}")
         return json.dumps(add_job(job["start"], job["end"], job_type))
     # else if user wants to get jobs
     elif request.method == "GET":
-        jobs = [] # initializing jobs array
-        if job_status is None:
-            job_type = path[-1]
-            jobs = get_jobs(job_type, "all")
-        else:
-            # set default job_status to "all" if none was given
-            job_type = path[-2] 
-            jobs = get_jobs(job_type, job_status)
-        
+        params = get_query_params()
+        if len(params) == 2: return params # params is only a length of 2 if an error has occured
+
+        # retriving path to determine job_type
+        params["job_type"] = path[-1]
+        print("job type is: ", params["job_type"])
+        jobs = filter_jobs(params)
+        print("found jobs: ", jobs)
         if jobs is not None:
             return jobs
         else:
             return message_payload("Unable get jobs", False, 500), 500
 
-# get plots/get incidents
-# help plots
-app.route("/jobs/<jid>", methods=["GET"])
-def get_job(jid):
+@app.route("/jobs/jids/<jid>", methods=["GET"])
+def get_unique_job(jid):
     # try to get job by id
     # then return restults if they exists
     try:
         job = get_job_by_id(jid)
     except Exception as e:
-        return message_payload("Error: Unable to find job with job id \
+        return message_payload(f"Error: Unable to find job with job id \
                                '{jid}': {e}", True, 404), 404
     if job:
-        if job.get("results") is not None:
-            return job["results"]
-        else:
-            return message_payload(f"Unable to retrieve results of job iwi is still being processed", False, 500), 500
+        return job
     else:
         return message_payload(f"Job with jid: {jid} does not exist")
 
+@app.route("/jobs/jids", methods=["GET"])
+def get_job_ids():
+    try:
+        params = get_query_params()
+        params["job_type"] = "all"
+        jobs = filter_jobs(params)
+    except Exception as e:
+        print(f"An error has occured while trying to get job ids: {e}")
+        return message_payload(f"Unable to get job ids, please try again later: {e}", False, 500)
+    return [job["id"] for job in jobs]
 
-
-app.route("/help", methods=["GET"])
+@app.route("/help", methods=["GET"])
 def help():
     """
     API + jobs help info...
