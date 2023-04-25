@@ -2,6 +2,7 @@ import uuid
 from hotqueue import HotQueue
 import redis
 import os
+import json
 # jobs.py
 # JUST TO CLARIFY
 # REDIS DB'S
@@ -38,36 +39,46 @@ def _instantiate_job(jid, job_type, status, start, end):
             'end': end.decode('utf-8')
     }
 
-def _save_job(job_key, job_dict):
-    global rd
+def _save_job(job_key:str, job_dict:str):
+    global rd_details
     """Save a job object in the Redis database."""
-    rd_details.hset(job_key, mapping=job_dict)
-
+    if type(job_dict) == str:
+        return rd_details.set(job_key, job_dict)
 def _queue_job(jid):
     """Add a job to the redis queue."""
     queue.put(jid)
 
-def add_job(start, job_type, end, status="submitted"):
+def add_job(start, end, job_type, status="submitted"):
     """Add a job to the redis queue."""
     jid = _generate_jid()
     job_dict = _instantiate_job(jid, job_type, status, start, end)
-    _save_job(job_dict['id'], job_dict)
+    print(f"now saving job to redis: {job_dict}")
+    _save_job(job_dict['id'], json.dumps(job_dict))
     _queue_job(job_dict['id'])
     return job_dict
 
 def update_job_status(jid, status, results:dict=None):
     """Update the status of job with job id `jid` to status `status`."""
+    print("updating job with jid:", jid)
     job = get_job_by_id(jid)
     if job:
         job['status'] = status
         if results: # adding results to job update
             job["results"] = results
-        _save_job(jid, job)
+        _save_job(jid, json.dumps(job))
     else :
-        raise Exception("No Job was found in the database with the following job ID '{jid}'")
+        raise Exception(f"No Job was found in the database with the following job ID '{jid}'")
+def clear_queue():
+    """ Removes all items from hotqueue redis database"""
+    queue.clear()
+    return True
 
 def get_job_by_id(jid):
     """"Returns Job dictionary object from redis database"""
     global rd_details
-    return rd_details.hget(jid)
-
+    print("gettting job using id:", jid)
+    return json.loads(rd_details.get(jid)) 
+def delete_all_jobs():
+    """ Delete all memory in rd_details db"""
+    print("now deleting jobs database")
+    return rd_details.flushdb()
