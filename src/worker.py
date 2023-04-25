@@ -1,23 +1,25 @@
-from jobs import queue, update_job_status, get_job_by_id, add_job , rd_details
+import matplotlib.pyplot as plt
+from jobs import queue, update_job_status, get_job_by_id, add_job, delete_all_jobs, rd_details
+from atx_traffic import post_incidents_data,rd
+import datetime
 import json
 import requests
 import os
-import redis
-import time
 access_token = os.environ.get("IMAGUR_ACCESS_TOKEN", "967ffa0d6f32d43b44578bac270e080f506ae998")
 imagur_auth = f'Bearer {access_token}'
 imagur_image_endpoint = "https://api.imgur.com/3/image"
 # worker.py
 @queue.worker # decorator keeps function "live" and always reading new messages from the queue
-def execute_job(jid:str) -> None:
+def _execute_job(jid:str) -> None:
     """
     Retrieve a job id from the task queue and execute the job.
     Monitors the job to completion and updates the database accordingly.
     """
     job = get_job_by_id(jid)
     update_job_status(jid, "in-progress")
+    print("retrieved job:", job)
     if job:
-        job_type = job.get("type")
+        job_type = job.get("job_type")
         if job_type == "plot-timeseries":
             try:
                 issue_reported = job.get('issue_reported"') # this won't work
@@ -48,11 +50,20 @@ def execute_job(jid:str) -> None:
                 ax.bar(years, counts)
                 ax.title(f'{issue_reported} Cases over Time')
                 plt.savefig('plot.png') # temporarily saves in worker directory
-                with open('plot.png') as f:
-                    img = f.read()
-                update_job_status(jid, 'completed', img) # upload data to redis to return
+                # now upload image to imagur, then update job status and return
+                image_dict = upload_image('plot.png')
+                if image_dict:
+                    update_job_status(jid, 'completed', image_dict)
+                else:
+                    print("ERROR Uploading image to imagur, adding job back into the queue")
+                    add_job(job["start"], job["end"], job["type"])
+                    return 
+                # with open('plot.png') as f:
+                #     img = f.read()
+                # update_job_status(jid, 'completed', img) # upload data to redis to return
                 #@TODO replace with web link?
-            except:
+            except Exception as e:
+                print(f"An error occcured while trying to make timeseries plot: {e}")
                 update_job_status(jid, "failed")
             pass
         elif job_type == "plot-dotmap":
@@ -75,11 +86,19 @@ def execute_job(jid:str) -> None:
                 ax.set_ylim(BBox[2],BBox[3])
                 ax.imshow(mp, zorder=0, extent = BBox, aspect= 'equal')
                 plt.savefig('plot.png') # temporarily saves in worker directory
-                with open('plot.png') as f:
-                    img = f.read()
-                update_job_status(jid, 'completed', img) # upload data to redis to return
+                image_dict = upload_image('plot.png')
+                if image_dict:
+                    update_job_status(jid, 'completed', image_dict)
+                else:
+                    print("ERROR Uploading image to imagur, adding job back into the queue")
+                    add_job(job["start"], job["end"], job["type"])
+                    return 
+                # with open('plot.png') as f:
+                #     img = f.read()
+                # update_job_status(jid, 'completed', img) # upload data to redis to return
                 #@TODO replace with web link?
-            except:
+            except Exception as e:
+                print(f"An error occcured while trying to make dotmap plot: {e}")
                 update_job_status(jid, "failed")
             pass
         elif job_type == "plot-heatmap":
@@ -118,17 +137,34 @@ def execute_job(jid:str) -> None:
                 #     img = f.read()
                 # update_job_status(jid, 'completed', img) # upload data to redis to return
                 #@TODO replace with web link?
-            except:
+            except Exception as e:
+                print(f"An error occcured while trying to make heatmap plot {e}")
                 update_job_status(jid, "failed")
             pass
         elif job_type == "incidents":
             try:
-                pass # insert post  function here
-            except:
+                post_incidents_data()
+                update_job_status(jid, "complete", {"message": "Data uploaded!"})
+            except Exception as e:
+                print(f"and error occured while trying to post incidents data: {e}")
                 update_job_status(jid, 'failed')
             pass
+        elif job_type == "delete":
+            print("Recived request to delete job")
+            # first we delete the images from imagur
+            for jid in rd_details.keys():
+                try:
+                    delete_image(jid)
+                except Exception as e:
+                    print(f"ERROR: Unable to delete image with jid: {jid}. Error: {e}")
+            # then we delete the jobs from the redis database
+            try:
+                delete_all_jobs()
+            except Exception as e:
+                print(f"ERROR: Unable to delete all jobs from rd_details: {e}")
+                update_job_status(jid, 'failed')
         else:
-            print('Unable to read job_type')
+            print('Unable to read job_type:', job_type)
             update_job_status(jid, 'failed')
             return
     ### update_job_status(jid, "completed", job)
@@ -217,4 +253,4 @@ def delete_image(jid:str) -> bool:
 
     return True
 
-execute_job()
+_execute_job()
