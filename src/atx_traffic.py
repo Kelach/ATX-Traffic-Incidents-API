@@ -423,7 +423,7 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
-<<<<<<< HEAD
+
 app.route("incidents/<incident_status>", methods=["GET"])
 app.route("incidents/<incident_type>", methods=["GET"])
 def get_incidents(incident_type:str = None, incident_status:str = None):
@@ -437,8 +437,6 @@ def get_incidents(incident_type:str = None, incident_status:str = None):
     params["incident_type"] = incident_type if incident_type is not None else "all"
     params["status"] = incident_status if incident_status is not None else "all"
 
-=======
->>>>>>> 92befc06154eb532693756d2b2b90cffbf1db3e0
 ##############################################################
 ##############        NOT DONE YET     #######################
 ##############################################################
@@ -458,15 +456,12 @@ def incident_at_epoch(epoch):
  incident: (dict) the incident and its information identified at a specified epoch 
  """
  global rd
-<<<<<<< HEAD
  # try to return filtered data otherwise return error message
  try:
     return filter_incidents_data(params)
  except Exception as e:
     print(f"An error occurred while trying to filter data: {e}")
     return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
-=======
->>>>>>> 92befc06154eb532693756d2b2b90cffbf1db3e0
 
  data = incidents()
  output = {}
