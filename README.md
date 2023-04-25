@@ -48,35 +48,35 @@ Here is a snippet of what the dataset looks like:
  Below is a overview of the file structure this project is comprised of: 
  
 ATX-Traffic-Incidents-API/
-    ├── [Docker](./Docker)
-    │   ├── [Dockerfile](./Docker/Dockerfile)
-    │   └── [docker-compose.yaml](./Docker/docker-compose.yaml)
-    ├── [Kubernetes](./Kubernetes)
+    ├── Docker
+    │   ├── Dockerfile
+    │   └── docker-compose.yaml
+    ├── Kubernetes
     │   ├── prod
-    │   │   ├── [prod-api-deployment.yml](./Kubernetes/prod/prod-api-deployment.yml)
-    │   │   ├── [prod-api-service.yml](./Kubernetes/prod/prod-api-service.yml)
-    │   │   ├── [py-debug-deployment.yml](./Kubernetes/prod/py-debug-deployment.yml)
-    │   │   ├── [db-pvc.yml](./Kubernetes/prod/db-pvc.yml)
-    │   │   ├── [db-service.yml](./Kubernetes/prod/db-service.yml)
-    │   │   └── [wrk-deployment.yml](./Kubernetes/prod/wrk-deployment.yml)
+    │   │   ├── prod-api-deployment.yml
+    │   │   ├── prod-api-service.yml
+    │   │   ├── py-debug-deployment.yml
+    │   │   ├── db-pvc.yml
+    │   │   ├── db-service.yml
+    │   │   └── wrk-deployment.yml
     │   └── test
-    │       ├── [test-api-deployment.yml](./Kubernetes/test/test-api-deployment.yml)
-    │       ├── [test-api-service.yml](./Kubernetes/test/test-api-service.yml)
-    │       ├── [test-redis-deployment.yml](./Kubernetes/test/test-redis-deployment.yml)
-    │       ├── [test-redis-pvc.yml](./Kubernetes/test/test-redis-pvc.yml)
-    │       ├── [test-redis-service.yml](./Kubernetes/test/test-redis-service.yml)
-    │       └── [test-wrk-deployment.yml](./Kubernetes/test/test-wrk-deployment.yml)
-    ├── [README.md](./README.md)
-    ├── [help-route.txt](./help-route.txt)
-    └── [src](./src)
-        ├── [atx_incidents.py](./src/atx_incidents.py)
-        ├── [config.yaml](./src/config.yaml)
-        ├── [worker.py](./src/worker.py)
-        ├── [jobs.py](./src/jobs.py)
-        ├── [worker.py](./src/worker.py)
+    │       ├── test-api-deployment.yml
+    │       ├── test-api-service.yml
+    │       ├── test-redis-deployment.yml
+    │       ├── test-redis-pvc.yml
+    │       ├── test-redis-service.yml
+    │       └── test-wrk-deployment.yml
+    ├── README.md
+    ├── help-route.txt
+    └── src
+        ├── atx_incidents.py
+        ├── config.yaml
+        ├── worker.py
+        ├── jobs.py
+        ├── worker.py
         └── testing
-            ├── [__init__.py](./src/testing/__init__.py)
-            └── [test_atx_incidents.py](./src/testing/test_atx_incidents.py)
+            ├── __init__.py
+            └── test_atx_incidents.py
 
           
 
