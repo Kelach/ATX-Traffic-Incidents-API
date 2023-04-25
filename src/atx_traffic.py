@@ -467,13 +467,6 @@ def incident_at_epoch(epoch):
  incident: (dict) the incident and its information identified at a specified epoch 
  """
  global rd
- # try to return filtered data otherwise return error message
- try:
-    return filter_incidents_data(params)
- except Exception as e:
-    print(f"An error occurred while trying to filter data: {e}")
-    return message_payload(f"Unable to to fulfil request: {e}", False, 500), 500
-
  data = incidents()
  output = {}
  try:
