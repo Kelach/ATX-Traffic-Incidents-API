@@ -582,9 +582,6 @@ def issues():
         return f'ERROR: unable to get IDs', 400
 
 
-
-
-
 # /published-range
 @app.route('/incidents/published-range', methods = ['GET'])
 def published_range():
@@ -622,8 +619,6 @@ def published_range():
 
 
 
-
-
 # /updated-range
 @app.route('/incidents/updated-range', methods = ['GET'])
 def updated_range():
@@ -658,7 +653,6 @@ def updated_range():
     except Exception as e:
         print(f'ERROR: unable to get updated range\n{e}')
         return f'ERROR: unable to get updated range', 400
-
 
 
 
@@ -712,6 +706,7 @@ def coordinates_range():
     except Exception as e:
         print(f'ERROR: unable to get coordinates range\n{e}')
         return f'ERROR: unable to get coordinates range', 400
+
 
 
 
