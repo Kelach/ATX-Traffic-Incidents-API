@@ -47,36 +47,36 @@ Here is a snippet of what the dataset looks like:
 
  Below is a overview of the file structure this project is comprised of: 
  
-ATX-Traffic-Incidents-API/
-    ├── Docker
-    │   ├── Dockerfile
-    │   └── docker-compose.yaml
-    ├── Kubernetes
-    │   ├── prod
-    │   │   ├── prod-api-deployment.yml
-    │   │   ├── prod-api-service.yml
-    │   │   ├── py-debug-deployment.yml
-    │   │   ├── db-pvc.yml
-    │   │   ├── db-service.yml
-    │   │   └── wrk-deployment.yml
-    │   └── test
-    │       ├── test-api-deployment.yml
-    │       ├── test-api-service.yml
-    │       ├── test-redis-deployment.yml
-    │       ├── test-redis-pvc.yml
-    │       ├── test-redis-service.yml
-    │       └── test-wrk-deployment.yml
-    ├── README.md
-    ├── help-route.txt
-    └── src
-        ├── atx_incidents.py
-        ├── config.yaml
-        ├── worker.py
-        ├── jobs.py
-        ├── worker.py
-        └── testing
-            ├── __init__.py
-            └── test_atx_incidents.py
+    ATX-Traffic-Incidents-API/
+        ├── Docker
+        │   ├── Dockerfile
+        │   └── docker-compose.yaml
+        ├── Kubernetes
+        │   ├── prod
+        │   │   ├── prod-api-deployment.yml
+        │   │   ├── prod-api-service.yml
+        │   │   ├── py-debug-deployment.yml
+        │   │   ├── db-pvc.yml
+        │   │   ├── db-service.yml
+        │   │   └── wrk-deployment.yml
+        │   └── test
+        │       ├── test-api-deployment.yml
+        │       ├── test-api-service.yml
+        │       ├── test-redis-deployment.yml
+        │       ├── test-redis-pvc.yml
+        │       ├── test-redis-service.yml
+        │       └── test-wrk-deployment.yml
+        ├── README.md
+        ├── help-route.txt
+        └── src
+            ├── atx_incidents.py
+            ├── config.yaml
+            ├── worker.py
+            ├── jobs.py
+            ├── worker.py
+            └── testing
+                ├── __init__.py
+                └── test_atx_incidents.py
 
           
 
@@ -157,13 +157,25 @@ This will redirect you into a terminal where you may now curl each of the routes
 |`/` | `GET` | returns a welcoming message(string) |
 |`/help` | `GET` | returns description of each route (string) | 
 | `/incidents`| `POST` `GET` `DELETE` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
-| `/epochs` | `GET` | returns epochs (list) |
-| `/ids` | `GET` | returns incident IDs (list) |
-| `/issues`| `GET` | returns incident type (list)|
-| `/published-range` | `GET` | earliest and latest published dates (string) |
-| `/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
-| `/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
+| `/incidents/epochs` | `GET` | returns epochs (list) |
+|`/incidents/<epoch>`| `GET` | returns incident at a given epoch (list) | 
+| `/incidents/ids` | `GET` | returns incident IDs (list) |
+| `/incidents/issues`| `GET` | returns incident type (list)|
+| `/incidents/published-range` | `GET` | earliest and latest published dates (string) |
+| `/incidents/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
+| `incidents/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
 | `/jobs/plot` | `GET` | ...... |
 | `/jobs/plot/<jid>` | `GET` | ....... | 
+|`/jobs`| `GET` | returns all jobs listed in rd_details |
+|`/jobs/plot/heatmap`| `GET` |
+|`/jobs/plot/dotmap`| `GET` |
+|`/jobs/plot/timeseries`| `GET` |
+|`jobs/incidents`| `GET` |
+|`/jobs/plot:`| `GET` |
+|`/jobs/incidents/<job_status>`| `GET` |
+|`/jobs/plot/heatmap/<job_status>`| `GET` |
+|`/jobs/plot/dotmap/<job_status>`| `GET` |
+|`/jobs/plot/timeseries/<job_status>`| `GET` |
+/jobs/plot/<job_status>`| `GET` |
 
 ## Results
