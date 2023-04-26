@@ -156,27 +156,21 @@ This will redirect you into a terminal where you may now curl each of the routes
 |-------| ------|-------|
 |`/` | `GET` | returns a welcoming message(string) |
 |`/help` | `GET` | returns description of each route (string) | 
-| `/incidents`| `POST` `GET` `DELETE` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
-| `/incidents/epochs` | `GET` | returns epochs (list) |
-|`/incidents/<epoch>`| `GET` | returns incident at a given epoch (list) | 
+| `/incidents`| `DELETE` `GET` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
+| `/incidents/published_dates` | `GET` | returns published_dates (list) |
+|`/incidents/published_dates/<published_date>`| `GET` | returns incident at a given published_date (list) | 
 | `/incidents/ids` | `GET` | returns incident IDs (list) |
 | `/incidents/issues`| `GET` | returns incident type (list)|
 | `/incidents/published-range` | `GET` | earliest and latest published dates (string) |
-| `/incidents/updated-range` | `GET` | what's the diff btwn this one and published-range?? |
+| `/incidents/updated-range` | `GET` | returns range at which incidents have been updated (dict)  |
 | `incidents/coordinates-range` | `GET` | minimum and maximum coordinates (dict) |
-| `/jobs/plot` | `GET` | ...... |
-| `/jobs/plot/<jid>` | `GET` | ....... | 
-|`/jobs`| `GET` | returns all jobs listed in rd_details |
-|`/jobs/plot/heatmap`| `GET` |
-|`/jobs/plot/dotmap`| `GET` |
-|`/jobs/plot/timeseries`| `GET` |
-|`jobs/incidents`| `GET` |
-|`/jobs/plot:`| `GET` |
-|`/jobs/incidents/<job_status>`| `GET` |
-|`/jobs/plot/heatmap/<job_status>`| `GET` |
-|`/jobs/plot/dotmap/<job_status>`| `GET` |
-|`/jobs/plot/timeseries/<job_status>`| `GET` |
-/jobs/plot/<job_status>`| `GET` |
+| `/jobs/plot/<jid>` | `GET` | returns job with a given job id (dict) | 
+|`/jobs`| `GET` | returns all jobs listed in the redis database (dicts) |
+|`/jobs/plot/heatmap`| `GET` `POST` | returns all heatmap jobs (dicts) |
+|`/jobs/plot/dotmap`| `GET``POST` | returns all dotmap jobs (dicts) |
+|`/jobs/plot/timeseries`| `GET` `POST`| returns all timeseries jobs (dicts) | 
+|`jobs/incidents`| `GET` `POST` | returns all incidents jobs (dicts) | 
+|`/jobs/plot`| `GET` | returns all plot jobs (dicts) | 
 
 ## Results
 using the command 
@@ -211,7 +205,7 @@ returns the following output:
 
 command:
 ```
-curl localhost:5000/incidents/epochs
+curl localhost:5000/incidents/published_dates
 ```
 returns:
 ```
@@ -324,7 +318,7 @@ returns:
 ```
 command
 ```
-curl localhost:5000/incidents/epochs/1538086619
+curl localhost:5000/incidents/published_dates/1538086619
 ```
 returns:
 ```
