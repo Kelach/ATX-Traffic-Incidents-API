@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  labels:
+    app: flask-api
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-api
+  template:
+    metadata:
+      labels:
+        app: flask-api
+        env: prod
+    spec:
+      containers:
+        - name: flask-api
+          imagePullPolicy: Always
+          image: kelach/atx_incidents:1.0
+          env:
+            - name: REDIS_HOSTNAME
+              value: $(REDIS_SERVICE_SERVICE_HOST)
+          command: ['python3', , '-u', 'src/atx_traffic.py']
+          ports:
+            - name: http
+              containerPort: 5000
