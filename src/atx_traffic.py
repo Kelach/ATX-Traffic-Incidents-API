@@ -564,7 +564,7 @@ def epochs():
  ## set param fields to a fixed value here ##
  
  filtered_incidents = filter_incidents_data(params)
- return [incident.get("publishe/d_date") for incident in filtered_incidents 
+ return [incident.get("published_date") for incident in filtered_incidents 
          if incident.get("published_date") is not None]
  
  
