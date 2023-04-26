@@ -1,6 +1,6 @@
 Routes: 
 
-/ : returns a welcoming message 
+/ : returns a welcome message 
 
 /help: returns description of each route
 
@@ -27,24 +27,36 @@ Routes:
 
 /incidents/coordinates-range: returns dictionary of maximum and minimum coordinates
 
-/jobs: returns all jobs listed in rd_details
+/jobs: retrieves data depending on 
+   Possible Methods:
+   GET: returns current, pending, and historical jobs
+   DELETE: clear job record
 
 /jobs/plot/heatmap: 
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all heatmap jobs that have been or will be executed 
 
 /jobs/plot/dotmap: 
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all dotmap jobs that have been or will be executed 
 
 /jobs/plot/timeseries:
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all time series jobs that have been or will be executed 
 
-/jobs/incidents:
+/jobs/incidents: returns all historical, current, and pending jobs for incidents
 
-/jobs/plot:
+/jobs/plot: returns all historical, current, and pending jobs for incidents 
 
-/jobs/incidents/<job_status>:
+/jobs/incidents/<job_status>: retrieves plot associated with specified ID
 
-/jobs/plot/heatmap/<job_status>:
+/jobs/plot/heatmap/<job_status>: retrieves plot associated with specified ID
 
-/jobs/plot/dotmap/<job_status>:
+/jobs/plot/<job_status>: retrieves plot associated with specified ID
 
-/jobs/plot/timeseries/<job_status>:
+/jobs/plot/dotmap/<job_status>: retrieves plot associated with specified ID
 
-/jobs/plot/<job_status>:
+/jobs/plot/timeseries/<job_status>: retrieves plot associated with specified ID
