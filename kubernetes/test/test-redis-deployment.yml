@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-pvc-deployment
+  name: test-redis-deployment
   labels:
     app: test-redis-db
     env: test

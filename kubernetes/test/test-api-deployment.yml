@@ -23,7 +23,7 @@ spec:
           image: kelach/test_atx_incidents:1.0
           env:
             - name: REDIS_HOSTNAME
-              value: $(TEST_REDIS_SERVICE_SERVICE_HOST)
+              value: test-redis-service
           command: ['python3', , '-u', 'src/atx_traffic.py']
           ports:
             - name: http
