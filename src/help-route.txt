@@ -1,16 +1,16 @@
-Routes: 
+Welcome to the help page!
+Here's a quick rundown of curling with the ATX Incidents API. 
+For detailed descriptions of each route, see: 
 
+https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
+
+
+############# Routes: ################
 / : returns a welcoming message 
 
 /help: returns description of each route
 
-/incidents: manages
- data depending on the method called
-
-   Possible Methods: 
-
-     1. POST: initializes data 
-     2. GET: returns data 
+/incidents: manages data depending on the method called
 
 /incidents/epochs: returns list of epochs (in seconds)
 
@@ -26,24 +26,14 @@ Routes:
 
 /incidents/coordinates-range: returns dictionary of maximum and minimum coordinates
 
-/jobs: returns all jobs listed in rd_details
+/jobs: returns all jobs listed in redis database
 
-/jobs/plot/heatmap: 
+/jobs/plot/heatmap:  returns all heatmap jobs
 
-/jobs/plot/dotmap: 
+/jobs/plot/dotmap: returns all dotmap jobs
 
-/jobs/plot/timeseries:
+/jobs/plot/timeseries:  returns all timeseries jobs
 
-/jobs/incidents:
+/jobs/incidents: returns all POST incident jobs
 
-/jobs/plot:
-
-/jobs/incidents/<job_status>:
-
-/jobs/plot/heatmap/<job_status>:
-
-/jobs/plot/dotmap/<job_status>:
-
-/jobs/plot/timeseries/<job_status>:
-
-/jobs/plot/<job_status>:
+/jobs/plot: returns all plot jobs (dicts)

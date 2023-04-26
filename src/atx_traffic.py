@@ -95,7 +95,6 @@ def is_in_bounds(**kwargs)->bool:
     Args:
     -----------
         **kwargs: dict object that contains the following keys:
-            - check_address: Boolean. If true, sets lat and lng equal to the ones associated with the input address 
             - inc: incident (dict)
             - radius_range (float): radius of circle boundary at which incident will be checked to be within
             - lng: longitude (float)
@@ -105,7 +104,7 @@ def is_in_bounds(**kwargs)->bool:
     -----------
         - Boolean. True if input incident is within the boundary of a region having 
             a given radius (in miles) and having the center at a given
-            point (longitude + lattitude or a single human readable address)
+            point (longitude + lattitude)
     """
     
     # @TODO write defensive code logic for types/values inputted into function
@@ -141,8 +140,8 @@ def get_query_params() -> dict:
         -----------
             - Dictionary object that pairs each query_parameter (key) with its associated value (inputted by the user).
                 The dictionary keys are as follows: 
-                    - "incident_type", "status", "radius", "date_range", "time_range"
-                      "address", "longitude", "latitude", "limit", "offest" 
+                    - "incident_type", "status", "radius", "date_range", "time_range",
+                       "longitude", "latitude", "limit", "offest" 
             - If an error has occured a tuple of length two is returned containing an error message and a status code
     """
     # Query Parameters
@@ -193,14 +192,11 @@ def get_query_params() -> dict:
     if offset < 0 or limit < 0:
         return (message_payload(f"Error: limit and offset input parameters must be positive integers only",False, 404), 404)
     
-    # need to check address, but may not include addresses at all
-    address = request.args.get("address", None) # default None address
     return {"incident_type":incident_type,
             "status":status,
             "radius":radius,
             "start_date":start_date,
             "end_date":end_date,
-            "address":address,
             "longitude":longitude,
             "lattitude":lattitude,
             "offset":offset,
@@ -313,8 +309,8 @@ def filter_incidents_data(params:dict) -> list:
     -----------
     params(dict): Query parameters returned from the get_query_params() 
         containing the following keys:
-            - "incident_type", "status", "radius", "date_range", "time_range"
-                        "address", "longitude", "latitude", "limit", "offest"
+            - "incident_type", "status", "radius", "date_range", "time_range",
+                        "longitude", "latitude", "limit", "offest"
 
     Returns:
     -----------
@@ -328,12 +324,10 @@ def filter_incidents_data(params:dict) -> list:
                                          or  incident["traffic_report_status"].lower() == params["status"].lower())
     is_in_time_range = lambda params, incident: (get_seconds(params["start_date"]) <= float(incident["published_date"]) <= get_seconds(params["end_date"]))
     
-    in_bounds = lambda params, incident: is_in_bounds(check_address=False, 
-                            incident=incident, 
+    in_bounds = lambda params, incident: is_in_bounds(incident=incident, 
                             radius_range=params["radius"], 
                             lng=params["longitude"], 
-                            lat=params["lattitude"], 
-                            addr=params["address"])
+                            lat=params["lattitude"])
     # filtering data using list comprehension and defined lambda functions
     print("getting data")
     data = [rd.hgetall(key) for key in rd.keys()[params["offset"]:params["offset"] + params["limit"]] # truncating + offsetting
@@ -459,34 +453,34 @@ def incidents():
             return f'ERROR: unable to delete data\n', 400
 
 
-@app.route('/incidents/epochs/<epoch>')
-def incident_at_epoch(epoch):
+@app.route('/incidents/published_dates/<published_date>')
+def incident_at_published_date(published_date):
 
  """
  Description
  -----------
- This function returns the incident and all its information at a specified epoch.
- If the epoch is undetected, an error message with a 404 status code will be returned.
+ This function returns the incident and all its information at a specified published_date.
+ If the published_date is undetected, an error message with a 404 status code will be returned.
  Args
  ----
- epoch: user specified epoch time
+ published_date: user specified published_date time
  Returns
  -------
- incident: (dict) the incident and its information identified at a specified epoch 
+ incident: (dict) the incident and its information identified at a specified published_date 
  """
  global rd
 
  for key in rd.keys():
    try:
     incident = rd.hgetall(key)
-    if incident['published_date'] == epoch:
+    if incident['published_date'] == published_date:
       return incident
 
    except:
     print('ERROR: unable to retrieve incident from redis database')
     return message_payload('ERROR: unable to retrieve incident from redis database.', False, 500), 500
 
- return message_payload("ERROR: unable to retrieve incident using epoch: {epoch}", False, 404), 404
+ return message_payload("ERROR: unable to retrieve incident using published_date: {published_date}", False, 404), 404
 
 # routes to help people form queries
 @app.route('/incidents/ids', methods = ['GET'])
@@ -539,14 +533,14 @@ def get_incident_by_id(id):
 
 
 
-# /epochs
-@app.route('/incidents/epochs', methods = ['GET'])
-def epochs():
+# /published_dates
+@app.route('/incidents/published_dates', methods = ['GET'])
+def published_dates():
 
- """/epochs endpoint
+ """/published_dates endpoint
  Description:
  ------------
- This function returns a list of all listed epochs in the database. If there is an error, 
+ This function returns a list of all listed published_dates in the database. If there is an error, 
  a descriptive string will  be returned with a 404 status code.
 
  Arguments:
@@ -555,7 +549,7 @@ def epochs():
 
  Returns:
  --------
-   A list of all epochs
+   A list of all published_dates filter by given query parameters
  """
 
  global rd
@@ -566,41 +560,6 @@ def epochs():
  filtered_incidents = filter_incidents_data(params)
  return [incident.get("published_date") for incident in filtered_incidents 
          if incident.get("published_date") is not None]
- 
- 
- 
-#  try:
-#    result = []
-
-#    for key in rd.keys():
-#      incident = rd.hgetall(key)
-#      """
-
-#      # parameter: offset
-#      if params['offset'] > 0:
-#        params['offset'] -= 1
-#        continue
-
-#      # parameter: incident type
-#      elif params['incident_type'].lower() != "all" and incident['issue_reported'].lower() !=  params['incident_type'].lower():
-#       continue
-
-#      # parameter: incident status
-#      elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
-#        continue
-
-#      # parameter: limit
-#      elif len(result) >= params['limit']:
-#      # elif params['limit'] != 2**32-1 and len(result)>= params['limit']: 
-#        break
-#      """
-#      result.append(rd.hget(key, 'published_date'))
-
-#    return result
-
-#  except Exception as e:
-#    print (f'ERROR: unable to retrieve epochs{e}')
-#    return f'ERROR: unable to retrieve epochs', 400
 
 
 
