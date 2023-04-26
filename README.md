@@ -179,3 +179,162 @@ This will redirect you into a terminal where you may now curl each of the routes
 /jobs/plot/<job_status>`| `GET` |
 
 ## Results
+using the command 
+```
+curl localhost:5000/incidents
+```
+returns the following output:
+```
+ {
+    "address": "2500-2544 N Lamar Blvd",
+    "issue_reported": "Traffic Hazard",
+    "latitude": "30.290347",
+    "location": "(30.290347,-97.751778)",
+    "longitude": "-97.751778",
+    "published_date": "1676849336",
+    "traffic_report_id": "F971BD2CEB1CA67127B574C0C2BCA9B64EC0A25A_1676849336",
+    "traffic_report_status": "ARCHIVED",
+    "traffic_report_status_date_time": "1676850303"
+  },
+  {
+    "address": "900-924 E St Elmo Rd",
+    "issue_reported": "Crash Urgent",
+    "latitude": "30.214084",
+    "location": "(30.214084,-97.755602)",
+    "longitude": "-97.755602",
+    "published_date": "1548307003",
+    "traffic_report_id": "8DA83CCF430EE7EEF2D965C4218617950BAD70AF_1548307003",
+    "traffic_report_status": "ARCHIVED",
+    "traffic_report_status_date_time": "1548307503"
+  }
+```
+
+command:
+```
+curl localhost:5000/incidents/epochs
+```
+returns:
+```
+ "1606035451",
+  "1538086619",
+  "1509299700",
+  "1587769000",
+  "1542377951",
+  "1570306624",
+  "1600909638",
+  "1548121719",
+  "1632170966",
+  "1560386960",
+  "1667388654",
+  "1625363027",
+```
+
+command: 
+```
+curl localhost:5000/incidents/ids
+```
+return:
+```
+"29F4D7BD70C46FD3B021272CB02151499CC6FDA1_1600909638",
+  "27858A0672AFDADFFF64D26877B49F4F5A9D2471_1548121719",
+  "0104CF3B45056589309EFFD4D0889E430018B490_1632170966",
+  "9D93F8113D6AC60E97D0769EFD6F167A812F620B_1560386960",
+  "BFA2BEBCBE6B2347840887DDAD4A0F2CE22194D9_1667388654",
+  "632047E5B2A712A7707F6B28AC722B1E706F1589_1625363027",
+  "0BC39B9D01F6D3E81328CDA94EAEFE5005744CEC_1630245918",
+```
+the command:
+```
+curl localhost:5000/incidents/ids/0BC39B9D01F6D3E81328CDA94EAEFE5005744CEC_1630245918
+```
+returns:
+```
+{
+  "address": "E William Cannon Dr & Circle S Rd",
+  "issue_reported": "Crash Urgent",
+  "latitude": "30.192728",
+  "location": "(30.192728,-97.777565)",
+  "longitude": "-97.777565",
+  "published_date": "1630245918",
+  "traffic_report_id": "0BC39B9D01F6D3E81328CDA94EAEFE5005744CEC_1630245918",
+  "traffic_report_status": "ARCHIVED",
+  "traffic_report_status_date_time": "1630251002"
+}
+```
+command:
+```
+curl localhost:5000/incidents/issues
+```
+returns:
+```
+"Stalled Vehicle",
+  "Traffic Impediment",
+  "VEHICLE FIRE",
+  "TRAFFIC FATALITY",
+  "COLLISION/PRIVATE PROPERTY",
+  "BLOCKED DRIV/ HWY",
+  "FLEET ACC/ INJURY",
+  "ICY ROADWAY",
+  "BOAT ACCIDENT",
+  "AUTO/ PED",
+  "OBSTRUCT HWY",
+  "HIGH WATER",
+  "N / HZRD TRFC VIOL",
+  "FLEET ACC/ FATAL",
+  "COLLISN / FTSRA"
+```
+command:
+```
+curl localhost:5000/incidents/published-range
+```
+returns:
+```
+{
+  "max": 1682439833,
+  "min": 1506442260
+}
+```
+command:
+```
+curl localhost:5000/incidents/updated-range
+```
+returns:
+```
+{
+  "max": 1682440203,
+  "min": 1520160
+}
+```
+command
+```
+curl localhost:5000/incidents/coordinates-range
+```
+returns:
+```
+{
+  "lat": {
+    "max": 31.077333,
+    "min": 30.003032
+  },
+  "lon": {
+    "max": -97.108986,
+    "min": -98.816154
+  }
+}
+```
+command
+```
+curl localhost:5000/incidents/epochs/1538086619
+```
+returns:
+```
+{
+  "address": "11600-11613 N Sh 130 Nb",
+  "issue_reported": "Crash Urgent",
+  "latitude": "30.343885",
+  "location": "(30.343885,-97.592577)",
+  "longitude": "-97.592577",
+  "published_date": "1538086619",
+  "traffic_report_id": "C60D81F35D8BE966FA0437E43F1FEFF777C6E121_1538086619",
+  "traffic_report_status": "ARCHIVED",
+```

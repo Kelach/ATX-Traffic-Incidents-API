@@ -381,6 +381,15 @@ def nil():
 
 @app.route('/help', methods = ['GET'])
 def help():
+ '''
+ returns a description of each route
+
+ Args:
+   none 
+
+ returns: 
+  help_text = (str) description of each route
+ '''
  help_text = open("help-route.txt", "r")
  print (help_text)
  return help_text
@@ -448,10 +457,9 @@ def incidents():
         except Exception as e:
             print(f'ERROR: unable to delete data\n{e}')
             return f'ERROR: unable to delete data\n', 400
-        
 
 
-@app.route('/incidents/<epoch>', methods = ['GET'])
+@app.route('/incidents/epochs/<epoch>')
 def incident_at_epoch(epoch):
 
  """
@@ -467,20 +475,18 @@ def incident_at_epoch(epoch):
  incident: (dict) the incident and its information identified at a specified epoch 
  """
  global rd
- data = incidents()
- output = {}
- try:
-  for key in data:
-    if key['published_date'] == epoch:
-      output.append(rd.hget(key))
 
-  return output
+ for key in rd.keys():
+   try:
+    incident = rd.hgetall(key)
+    if incident['published_date'] == epoch:
+      return incident
 
- except Exception as e:
-  print(f'ERROR: unable to find epoch/n{e}')
-  return f'ERROR: unable to find epoch', 404
+   except:
+    print('ERROR: unable to retrieve incident from redis database')
+    return message_payload('ERROR: unable to retrieve incident from redis database.', False, 500), 500
 
-
+ return message_payload("ERROR: unable to retrieve incident using epoch: {epoch}", False, 404), 404
 
 # routes to help people form queries
 @app.route('/incidents/ids', methods = ['GET'])
@@ -554,14 +560,13 @@ def epochs():
 
  global rd
  params = get_query_params()
- data = incidents()
 
  try:
    result = []
 
-   for key in data: 
-     #   for key in rd.keys():
-     #    incident = rd.hgetall(key)
+   for key in rd.keys():
+     incident = rd.hgetall(key)
+     """
 
      # parameter: offset
      if params['offset'] > 0:
@@ -578,14 +583,15 @@ def epochs():
 
      # parameter: limit
      elif len(result) >= params['limit']:
+     # elif params['limit'] != 2**32-1 and len(result)>= params['limit']: 
        break
+     """
+     result.append(rd.hget(key, 'published_date'))
 
-     # result.append(rd.hget(key, 'published_date'))
-     result.append(key, 'published_data')
-     return result
+   return result
 
  except Exception as e:
-   print (f'ERROR: unable to retrieve epochs/n{e}')
+   print (f'ERROR: unable to retrieve epochs{e}')
    return f'ERROR: unable to retrieve epochs', 400
 
 
@@ -879,18 +885,6 @@ def get_job_ids():
         return message_payload(f"Unable to get job ids, please try again later: {e}", False, 500)
     return [job["id"] for job in jobs]
 
-<<<<<<< HEAD
-=======
-
-
-
-
-@app.route("/help", methods=["GET"])
-def help():
-    """
-    API + jobs help info...
-    """
->>>>>>> 874087614549006ed065817e9fb54ed9f78949ee
 # /addresses ... way they're recorded is irrecular
 # /statuses
 # /plot/dotmap
