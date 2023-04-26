@@ -13,7 +13,7 @@ Routes:
      2. GET: returns data 
      3. DELETE: deletes data 
 
-/incidents/epochs: returns list of epochs
+/incidents/epochs: returns list of epochs (in seconds)
 
 /incidents/<epoch>: returns list of incident at a given epoch
 

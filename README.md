@@ -43,35 +43,42 @@ Here is a snippet of what the dataset looks like:
 }
 ```
 
-### Files
+### File Organization
 
- This project contains the following: 
+ Below is a overview of the file structure this project is comprised of: 
  
- 1. Docker (2)
-    * Dockerfile
-    * docker-compose.yml
+    ATX-Traffic-Incidents-API/
+        ├── Docker
+        │   ├── Dockerfile
+        │   └── docker-compose.yaml
+        ├── Kubernetes
+        │   ├── prod
+        │   │   ├── prod-api-deployment.yml
+        │   │   ├── prod-api-service.yml
+        │   │   ├── py-debug-deployment.yml
+        │   │   ├── db-pvc.yml
+        │   │   ├── db-service.yml
+        │   │   └── wrk-deployment.yml
+        │   └── test
+        │       ├── test-api-deployment.yml
+        │       ├── test-api-service.yml
+        │       ├── test-redis-deployment.yml
+        │       ├── test-redis-pvc.yml
+        │       ├── test-redis-service.yml
+        │       └── test-wrk-deployment.yml
+        ├── README.md
+        ├── help-route.txt
+        └── src
+            ├── atx_incidents.py
+            ├── config.yaml
+            ├── worker.py
+            ├── jobs.py
+            ├── worker.py
+            └── testing
+                ├── __init__.py
+                └── test_atx_incidents.py
 
- 2. kubernetes/test (7)
-   * py-debug-deployment.yml
-   * test-api-deployment.yml
-   * test-api-service.yml
-   * test-redis-deployment.yml
-   * test-redis-pvc.yml
-   * test-redis-service.yml
-   * test-wrk-deployment.yml
- 
- 3. src (5)
-   * testing (1)
-     * test_atx_traffic.py
-   * atx_traffic.py
-   * config.yaml
-   * jobs.py
-   * map.png
-   * worker.py
- 
- 4. help-route.txt
-
- 5. README
+          
 
 ## Running the Application
 **note: before running this project, please make sure this GitHub repository

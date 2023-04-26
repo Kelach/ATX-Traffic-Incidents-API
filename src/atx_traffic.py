@@ -448,9 +448,6 @@ def incidents():
         
 
 
-##############################################################
-##############        NOT DONE YET     #######################
-##############################################################
 @app.route('/incidents/<epoch>', methods = ['GET'])
 def incident_at_epoch(epoch):
 
@@ -500,6 +497,7 @@ def ids():
     -----------
         A list of all incident IDs as strings.
     """
+
     global rd
     try:
         params = get_query_params()
@@ -576,7 +574,7 @@ def epochs():
      elif len(result) >= params['limit']:
        break
 
-     result.append(rd.hget(key, 'published_date'))
+    result.append(rd.hget(key, 'published_date'))
    return result
 
  except Exception as e:
