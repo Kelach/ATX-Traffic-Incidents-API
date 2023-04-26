@@ -390,7 +390,7 @@ def help():
  returns: 
   help_text = (str) description of each route
  '''
- help_text = open("help-route.txt", "r")
+ help_text = open("./src/help-route.txt", "r")
  print (help_text)
  return help_text
 
@@ -560,39 +560,47 @@ def epochs():
 
  global rd
  params = get_query_params()
+ if len(params) == 2: return params # params is only length of 2 if an error has occured
+ ## set param fields to a fixed value here ##
+ 
+ filtered_incidents = filter_incidents_data(params)
+ return [incident.get("publishe/d_date") for incident in filtered_incidents 
+         if incident.get("published_date") is not None]
+ 
+ 
+ 
+#  try:
+#    result = []
 
- try:
-   result = []
+#    for key in rd.keys():
+#      incident = rd.hgetall(key)
+#      """
 
-   for key in rd.keys():
-     incident = rd.hgetall(key)
-     """
+#      # parameter: offset
+#      if params['offset'] > 0:
+#        params['offset'] -= 1
+#        continue
 
-     # parameter: offset
-     if params['offset'] > 0:
-       params['offset'] -= 1
-       continue
+#      # parameter: incident type
+#      elif params['incident_type'].lower() != "all" and incident['issue_reported'].lower() !=  params['incident_type'].lower():
+#       continue
 
-     # parameter: incident type
-     elif params['incident_type'].lower() != "all" and incident['issue_reported'].lower() !=  params['incident_type'].lower():
-      continue
+#      # parameter: incident status
+#      elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
+#        continue
 
-     # parameter: incident status
-     elif params['status'].lower() != "both" and incident['traffic_report_status'].lower() != params['status'].lower():
-       continue
+#      # parameter: limit
+#      elif len(result) >= params['limit']:
+#      # elif params['limit'] != 2**32-1 and len(result)>= params['limit']: 
+#        break
+#      """
+#      result.append(rd.hget(key, 'published_date'))
 
-     # parameter: limit
-     elif len(result) >= params['limit']:
-     # elif params['limit'] != 2**32-1 and len(result)>= params['limit']: 
-       break
-     """
-     result.append(rd.hget(key, 'published_date'))
+#    return result
 
-   return result
-
- except Exception as e:
-   print (f'ERROR: unable to retrieve epochs{e}')
-   return f'ERROR: unable to retrieve epochs', 400
+#  except Exception as e:
+#    print (f'ERROR: unable to retrieve epochs{e}')
+#    return f'ERROR: unable to retrieve epochs', 400
 
 
 

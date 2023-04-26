@@ -11,7 +11,6 @@ Routes:
 
      1. POST: initializes data 
      2. GET: returns data 
-     3. DELETE: deletes data 
 
 /incidents/epochs: returns list of epochs (in seconds)
 
