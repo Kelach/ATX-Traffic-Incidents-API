@@ -22,20 +22,27 @@ def _execute_job(jid:str) -> None:
         job_type = job.get("job_type")
         if job_type == "plot-timeseries":
             try:
-                issue_reported = job.get('issue_reported"') # this won't work
+                try:
+                    start = int(job.get('start'))
+                    end = int(job.get('end'))
+                    start_string = datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d')
+                    end_string = datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d')
+                except:
+                    start = None
+                    end = None
+                    start_string = None
+                    end_string = None
                 years = []
                 counts = []
                 for key in rd.keys():
                     try:
                         unix_time = int(rd.hget(key, 'published_date'))
                         val = rd.hget(key, 'issue_reported"')
-                        year = datetime.utcfromtimestamp(unix_time).strftime('%Y')
-                        # Either val is the constrained issue_reported
-                        # Or issue_reported is left blank
-                        # In which case count everything
-                        if val == issue_reported \
-                                or issue_reported == "" \
-                                or issue_reported is None:
+                        year = datetime.datetime.fromtimestamp(unix_time).strftime('%Y')
+                        if (start is None \
+                                or start <= unix_time) \
+                                and (end is None \
+                                or end >= unix_time):
                             # Either increase the count bin for a year
                             # Or create a new year bin with a count of 1
                             if year in years:
@@ -44,11 +51,17 @@ def _execute_job(jid:str) -> None:
                             else:
                                 years.append(year)
                                 counts.append(1)
-                    except:
+                    except Exception as e:
+                        print(e)
                         continue
                 fig, ax = plt.subplots()
+                counts = [count for _, count in sorted(zip(years, counts))] # sort counts by year
+                years = sorted(years) # now sort years
                 ax.bar(years, counts)
-                ax.title(f'{issue_reported} Cases over Time')
+                if start is None or end is None:
+                    plt.title('Cases over Time')
+                else:
+                    plt.title(f'Cases from {start_string} to {end_string}')
                 plt.savefig('plot.png') # temporarily saves in worker directory
                 # now upload image to imagur, then update job status and return
                 image_dict = upload_image('plot.png')
@@ -68,14 +81,31 @@ def _execute_job(jid:str) -> None:
             pass
         elif job_type == "plot-dotmap":
             try:
+                try:
+                    start = int(job.get('start'))
+                    end = int(job.get('end'))
+                    start_string = datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d')
+                    end_string = datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d')
+                except:
+                    start = None
+                    end = None
+                    start_string = None
+                    end_string = None
+                lats = []
+                lons = []
                 for key in rd.keys():
-                    lat = rd.hget(key, 'latitude')
-                    lon = rd.hget(key, 'longitude')
                     try:
+                        unix_time = int(rd.hget(key, 'published_date'))
+                        lat = rd.hget(key, 'latitude')
+                        lon = rd.hget(key, 'longitude')
                         lat = float(lat)
                         lon = float(lon)
-                        lats.append(lat)
-                        lons.append(lon)
+                        if (start is None \
+                                or start <= unix_time) \
+                                and (end is None \
+                                or end >= unix_time):
+                                    lats.append(lat)
+                                    lons.append(lon)
                     except:
                         continue
                 BBox = (-98.9,-97.0, 30.0, 31.1)
@@ -85,6 +115,10 @@ def _execute_job(jid:str) -> None:
                 ax.set_xlim(BBox[0],BBox[1])
                 ax.set_ylim(BBox[2],BBox[3])
                 ax.imshow(mp, zorder=0, extent = BBox, aspect= 'equal')
+                if start is None or end is None:
+                    plt.title('Cases over Time')
+                else:
+                    plt.title(f'Cases from {start_string} to {end_string}')
                 plt.savefig('plot.png') # temporarily saves in worker directory
                 image_dict = upload_image('plot.png')
                 if image_dict:
@@ -103,20 +137,37 @@ def _execute_job(jid:str) -> None:
             pass
         elif job_type == "plot-heatmap":
             try:
+                try:
+                    start = int(job.get('start'))
+                    end = int(job.get('end'))
+                    start_string = datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d')
+                    end_string = datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d')
+                except:
+                    start = None
+                    end = None
+                    start_string = None
+                    end_string = None
+                lats = []
+                lons = []
                 for key in rd.keys():
-                    lat = rd.hget(key, 'latitude')
-                    lon = rd.hget(key, 'longitude')
                     try:
+                        unix_time = int(rd.hget(key, 'published_date'))
+                        lat = rd.hget(key, 'latitude')
+                        lon = rd.hget(key, 'longitude')
                         lat = float(lat)
                         lon = float(lon)
-                        lats.append(lat)
-                        lons.append(lon)
+                        if (start is None \
+                                or start <= unix_time) \
+                                and (end is None \
+                                or end >= unix_time):
+                                    lats.append(lat)
+                                    lons.append(lon)
                     except:
                         continue
                 BBox = (-98.9,-97.0, 30.0, 31.1)
                 mp = plt.imread('map.png')
                 fig, ax = plt.subplots()
-                ax.hist2d(lons, lats, zorder=1, alpha= 0.2, \
+                counts, xedges, yedges, im = ax.hist2d(lons, lats, zorder=1, alpha=0.5, cmin=1, \
                         bins=[int((BBox[1]-BBox[0])/0.01), \
                         int((BBox[3]-BBox[2])/0.01)], \
                         range=[[BBox[0], BBox[1]], \
@@ -124,6 +175,11 @@ def _execute_job(jid:str) -> None:
                 ax.set_xlim(BBox[0],BBox[1])
                 ax.set_ylim(BBox[2],BBox[3])
                 ax.imshow(mp, zorder=0, extent = BBox, aspect= 'equal')
+                fig.colorbar(im, ax=ax)
+                if start is None or end is None:
+                    plt.title('Cases over Time')
+                else:
+                    plt.title(f'Cases from {start_string} to {end_string}')
                 plt.savefig('plot.png') # temporarily saves in worker directory
                 # now upload image to imagur, then update job status and return
                 image_dict = upload_image('plot.png')

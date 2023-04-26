@@ -784,6 +784,7 @@ def jobs():
 
 
 
+
 # all routes related to getting/posting jobs
 @app.route("/jobs/plot/heatmap", methods=["POST", "GET"])
 @app.route("/jobs/plot/dotmap", methods=["POST", "GET"])
@@ -809,10 +810,8 @@ def handle_jobs():
         # try to get inputted job from user. and check that it's valid
         try:
             job = request.get_json(force=True)
-            job['start'] = job.get('start', '1971-01-01')
-            job['end'] = job.get('end', '2037-12-30')
-            get_seconds(job["start"])
-            get_seconds(job["end"])
+            job['start'] = get_seconds(job.get('start', '1971-01-01'))
+            job['end'] = get_seconds(job.get('end', '2037-12-30'))
         # catch invalid end/start string dates
         except ValueError:
             print(f"ERROR: invalid start date: {job['start']} or end date: {job['end']}") 
@@ -842,6 +841,10 @@ See /help for more assistance", False, 404), 404
         else:
             return message_payload("Unable get jobs", False, 500), 500
 
+
+
+
+
 @app.route("/jobs/jids/<jid>", methods=["GET"])
 def get_unique_job(jid):
     # try to get job by id
@@ -856,6 +859,10 @@ def get_unique_job(jid):
     else:
         return message_payload(f"Job with jid: {jid} does not exist")
 
+
+
+
+
 @app.route("/jobs/jids", methods=["GET"])
 def get_job_ids():
     try:
@@ -866,6 +873,10 @@ def get_job_ids():
         print(f"An error has occured while trying to get job ids: {e}")
         return message_payload(f"Unable to get job ids, please try again later: {e}", False, 500)
     return [job["id"] for job in jobs]
+
+
+
+
 
 @app.route("/help", methods=["GET"])
 def help():
