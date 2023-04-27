@@ -139,8 +139,10 @@ $ kubectl get pods
 ```
 The result should be similar to the one below: 
 
-**insert sc of code**
-
+```
+test-flask-deployment-66f84d5d65-5cgpt          1/1     Running   0              97mtest-redis-deployment-7cd9bd866c-p9kq8          1/1     Running   0              114m
+test-worker-deployment-5688559647-jdrtt         1/1     Running   2 (114m ago)   114m
+```
 In addition to the status of each of the pods, the above command should also return
 the identication series of each pod. 
 
@@ -149,7 +151,14 @@ Please `exec` into the python debug deployment file to use the k8s cluster:
 $ kubectl exec -it <**file_name**> -- /bin/bash
 ```
 This will redirect you into a terminal where you may now curl each of the routes. 
-
+```
+$ kubectl exec -it py-debug-deployment-84c7b596c6-459lz -- bin/bash
+root@py-debug-deployment-84c7b596c6-459lz:/#
+```
+Please use the following command to curl: 
+```
+curl flask-service:5000/<routes>
+```
 ## Routes
 
 | Routes | Methods | Description |
