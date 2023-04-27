@@ -81,7 +81,7 @@ Here is a snippet of what the dataset looks like:
           
 
 ## Running the Application
-**note: before running this project, please make sure this GitHub repository
+**NOTE**: before running this project, please make sure this GitHub repository
 has been cloned: 
 ```
 git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git .
