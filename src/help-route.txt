@@ -2,12 +2,7 @@ Welcome to the help page!
 Here's a quick rundown of curling with the ATX Incidents API. 
 For detailed descriptions of each route, see: 
 
-<<<<<<< HEAD
-/ : returns a welcome message 
-=======
 https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
->>>>>>> 3abb3b26e6fb4e87e4ae4934500620382d711381
-
 
 ############# Routes: ################
 / : returns a welcoming message 
