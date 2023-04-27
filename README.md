@@ -10,7 +10,7 @@
 This project is utilizes a real-time public traffic incident dataset from
 the Austin traffic reports RSS feed to build a Flask Web API project. Users
 can query information regarding live incidents in the Travis County area and view
-graphs ** explain what kind of graphs ** for the month. This project uses a
+graphs. This project uses a
 pesistent Redis database for data storage and can also be deployed into a 
 Kubernetes cluster. 
 
