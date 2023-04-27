@@ -2,7 +2,11 @@ Welcome to the help page!
 Here's a quick rundown of curling with the ATX Incidents API. 
 For detailed descriptions of each route, see: 
 
+<<<<<<< HEAD
+/ : returns a welcome message 
+=======
 https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
+>>>>>>> 3abb3b26e6fb4e87e4ae4934500620382d711381
 
 
 ############# Routes: ################
@@ -26,6 +30,41 @@ https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
 
 /incidents/coordinates-range: returns dictionary of maximum and minimum coordinates
 
+<<<<<<< HEAD
+/jobs: retrieves data depending on 
+   Possible Methods:
+   GET: returns current, pending, and historical jobs
+   DELETE: clear job record
+
+/jobs/plot/heatmap: 
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all heatmap jobs that have been or will be executed 
+
+/jobs/plot/dotmap: 
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all dotmap jobs that have been or will be executed 
+
+/jobs/plot/timeseries:
+   Possible Methods:
+      POST: creates a new job to generate a plot 
+      GET: returns all time series jobs that have been or will be executed 
+
+/jobs/incidents: returns all historical, current, and pending jobs for incidents
+
+/jobs/plot: returns all historical, current, and pending jobs for incidents 
+
+/jobs/incidents/<job_status>: retrieves plot associated with specified ID
+
+/jobs/plot/heatmap/<job_status>: retrieves plot associated with specified ID
+
+/jobs/plot/<job_status>: retrieves plot associated with specified ID
+
+/jobs/plot/dotmap/<job_status>: retrieves plot associated with specified ID
+
+/jobs/plot/timeseries/<job_status>: retrieves plot associated with specified ID
+=======
 /jobs: returns all jobs listed in redis database
 
 /jobs/plot/heatmap:  returns all heatmap jobs
@@ -37,3 +76,4 @@ https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
 /jobs/incidents: returns all POST incident jobs
 
 /jobs/plot: returns all plot jobs (dicts)
+>>>>>>> 3abb3b26e6fb4e87e4ae4934500620382d711381
