@@ -196,8 +196,8 @@ curl flask-service:5000/<routes>
   | `incident_type` | `string`          | The type of incident being reported                   |
   | `status`       | `string`          | The current status of the incident                     |
   | `radius`       | `float`           | The distance from a given point to search for incidents|
-  | `start_date`   | `string (ISO 8601)` | The start date to search for incidents                 |
-  | `end_date`     | `string (ISO 8601)` | The end date to search for incidents                   |
+  | `start_date`   | `string` | The start date to search for incidents                 |
+  | `end_date`     | `string` | The end date to search for incidents                   |
   | `longitude`    | `float`           | The longitude of the location to search for incidents  |
   | `latitude`     | `float`           | The latitude of the location to search for incidents   |
   | `limit`        | `positive integer`| The maximum number of incidents to return              |
