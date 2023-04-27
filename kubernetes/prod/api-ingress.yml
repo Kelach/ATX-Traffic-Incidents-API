@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - host: "atx_incidents.coe332.tacc.cloud"
+  - host: "atx-incidents.coe332.tacc.cloud"
     http:
         paths:
         - pathType: Prefix
