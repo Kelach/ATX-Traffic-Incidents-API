@@ -25,7 +25,6 @@ https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
 
 /incidents/coordinates-range: returns dictionary of maximum and minimum coordinates
 
-<<<<<<< HEAD
 /jobs: retrieves data depending on 
    Possible Methods:
    GET: returns current, pending, and historical jobs
@@ -49,26 +48,3 @@ https://github.com/Kelach/ATX-Traffic-Incidents-API#routes
 /jobs/incidents: returns all historical, current, and pending jobs for incidents
 
 /jobs/plot: returns all historical, current, and pending jobs for incidents 
-
-/jobs/incidents/<job_status>: retrieves plot associated with specified ID
-
-/jobs/plot/heatmap/<job_status>: retrieves plot associated with specified ID
-
-/jobs/plot/<job_status>: retrieves plot associated with specified ID
-
-/jobs/plot/dotmap/<job_status>: retrieves plot associated with specified ID
-
-/jobs/plot/timeseries/<job_status>: retrieves plot associated with specified ID
-=======
-/jobs: returns all jobs listed in redis database
-
-/jobs/plot/heatmap:  returns all heatmap jobs
-
-/jobs/plot/dotmap: returns all dotmap jobs
-
-/jobs/plot/timeseries:  returns all timeseries jobs
-
-/jobs/incidents: returns all POST incident jobs
-
-/jobs/plot: returns all plot jobs (dicts)
->>>>>>> 3abb3b26e6fb4e87e4ae4934500620382d711381

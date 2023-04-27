@@ -153,7 +153,7 @@ test-flask-deployment-66f84d5d65-5cgpt          1/1     Running   0             
 test-worker-deployment-5688559647-jdrtt         1/1     Running   2 (114m ago)   114m
 ```
 In addition to the status of each of the pods, the above command should also return
-the identication series of each pod. 
+the identification series of each pod. 
 
 Please `exec` into the python debug deployment file to use the k8s cluster:
 ```
