@@ -388,16 +388,9 @@ def help():
  print (help_text)
  return help_text
 
-# /incidents GET POST DELETE with optional query refinement parameters
-#     OR/AND toggle???
-#     id (string)
-#     issue (string)
-#     published (date range -- strings?)
-#     reported (date range -- strings?)
-#     latitude/longitude ranges (double)
-#     latitude/longitude center and radius (double)
-#     address contains (string)
-#     status (string)
+
+
+
 @app.route('/incidents', methods = ['GET', 'DELETE'])
 def incidents():
     """/incidents endpoint
@@ -851,27 +844,6 @@ def get_job_ids():
         print(f"An error has occured while trying to get job ids: {e}")
         return message_payload(f"Unable to get job ids, please try again later: {e}", False, 500)
     return [job["id"] for job in jobs]
-
-# /addresses ... way they're recorded is irrecular
-# /statuses
-# /plot/dotmap
-#     issue (string)
-#     published (date range -- strings?)
-#     reported (date range -- strings?)
-#     latitude/longitude ranges (double)
-#     status (string)
-#     colorby (string...none, issue, or status)
-# /plot/heatmap
-#     issue (string)
-#     published (date range -- strings?)
-#     reported (date range -- strings?)
-#     latitude/longitude ranges (double)
-#     status (string)
-# /plot/timeseries
-# aaaaaaaaaaaaaaa
-# /help
-# Can write a text file that Python displays
-
 
 
 
