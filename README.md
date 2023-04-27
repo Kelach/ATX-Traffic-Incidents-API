@@ -174,7 +174,7 @@ curl flask-service:5000/<routes>
 |-------| ------|-------|
 |`/` | `GET` | returns a welcoming message(string) |
 |`/help` | `GET` | returns description of each route (string) | 
-| `/incidents`| `DELETE` `GET` | posts, retrieves, or deletes data depending on method used (list of dictionaries) |
+| `/incidents`| `DELETE` `GET` | retrieves or deletes data depending on method used (list of dictionaries) |
 | `/incidents/published_dates` | `GET` | returns published_dates (list) |
 |`/incidents/published_dates/<published_date>`| `GET` | returns incident at a given published_date (list) | 
 | `/incidents/ids` | `GET` | returns incident IDs (list) |
