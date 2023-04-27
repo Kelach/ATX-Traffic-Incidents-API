@@ -90,7 +90,16 @@ git clone git@github.com:Kelach/ATX-Traffic-Incidents-API.git .
 
 ### Flask **are we using flask?**
 
-**empty.........**
+To run this code on Flask, first `cd` into the directory containing the scripts, `/src`. 
+Then use the following command: 
+```
+flask --app atx_traffic --debug run
+```
+
+In another terimnal, different routes can be called using
+```
+curl localhost:5000/<route_name>
+```
 
 ### Docker Hub
 This app has already been pushed to Docker Hub. To run, please pull the image
