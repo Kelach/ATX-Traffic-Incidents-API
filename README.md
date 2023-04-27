@@ -172,18 +172,18 @@ This will redirect you into a terminal where you may now curl each of the routes
 |`jobs/incidents`| `GET` `POST` | returns all incidents jobs (dicts) | 
 |`/jobs/plot`| `GET` | returns all plot jobs (dicts) | 
 
-### Query Parameters
-| Name         | Type              | Description                                         |
-|--------------|-------------------|-----------------------------------------------------|
-| `incident_type` | string            | The type of incident being reported                 |
-| `status`       | string            | The current status of the incident                   |
-| `radius`       | float             | The distance from a given point to search for incidents|
-| `date_range`   | string            | The range of dates to search for incidents            |
-| `time_range`   | string            | The range of times to search for incidents            |
-| `longitude`    | float             | The longitude of the location to search for incidents |
-| `latitude`     | float             | The latitude of the location to search for incidents  |
-| `limit`        | positive integer | The maximum number of incidents to return             |
-| `offset`       | positive integer | The number of incidents to skip before returning results |
+  ### Query Parameters
+  | Name         | Type              | Description                                         |
+  |--------------|-------------------|-----------------------------------------------------|
+  | `incident_type` | string            | The type of incident being reported                 |
+  | `status`       | string            | The current status of the incident                   |
+  | `radius`       | float             | The distance from a given point to search for incidents|
+  | `date_range`   | string            | The range of dates to search for incidents            |
+  | `time_range`   | string            | The range of times to search for incidents            |
+  | `longitude`    | float             | The longitude of the location to search for incidents |
+  | `latitude`     | float             | The latitude of the location to search for incidents  |
+  | `limit`        | positive integer | The maximum number of incidents to return             |
+  | `offset`       | positive integer | The number of incidents to skip before returning results |
 
 ## Results
 using the command 
