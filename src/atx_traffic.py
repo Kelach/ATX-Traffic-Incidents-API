@@ -158,12 +158,12 @@ def get_query_params() -> dict:
 
     # start + end dates
     try:
-        start_date = request.args.get("start", "1971-01-01") # default to several years in past
+        start_date = request.args.get("start_date", "1971-01-01") # default to several years in past
         get_seconds(start_date) # using get_seconds functions to check formatting of date
     except Exception as e:
-        return (message_payload(f"Invalid 'start' input parameter: {e}", False, 404), 404)
+        return (message_payload(f"Invalid 'start_date' input parameter: {e}", False, 404), 404)
     try:
-        end_date = request.args.get("end", "2037-12-30") # default to several years in future
+        end_date = request.args.get("end_date", "2037-12-30") # default to several years in future
         get_seconds(end_date) # using get_seconds function to check formatting of date
     except Exception as e:
         return (message_payload(f"Invalid 'end' input parameter: {e}", False, 404), 404)
