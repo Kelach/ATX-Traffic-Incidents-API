@@ -105,11 +105,11 @@ curl localhost:5000/<route_name>
 This app has already been pushed to Docker Hub. To run, please pull the image
 using the command
 ```
-$ docker pull **whoever pushed it**/**file_name** 
+$ docker pull kelach/atx_incidents:1.0  
 ```
 Run the image using 
 ```
-$ docker run -it --rm **name/file** .
+$ docker run -it --rm kelach/atx_incidents:1.0 .
 ```
 
 ### Dockerfile
