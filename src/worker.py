@@ -62,9 +62,9 @@ def _execute_job(jid:str) -> None:
                     plt.title('Cases over Time')
                 else:
                     plt.title(f'Cases from {start_string} to {end_string}')
-                plt.savefig('plot.png') # temporarily saves in worker directory
+                plt.savefig('src/plot.png') # temporarily saves in worker directory
                 # now upload image to imagur, then update job status and return
-                image_dict = upload_image('plot.png')
+                image_dict = upload_image('src/plot.png')
                 if image_dict:
                     update_job_status(jid, 'completed', image_dict)
                 else:
@@ -109,7 +109,7 @@ def _execute_job(jid:str) -> None:
                     except:
                         continue
                 BBox = (-98.9,-97.0, 30.0, 31.1)
-                mp = plt.imread('map.png')
+                mp = plt.imread('src/map.png')
                 fig, ax = plt.subplots()
                 ax.scatter(lons, lats, zorder=1, alpha= 0.2, c='b', s=10)
                 ax.set_xlim(BBox[0],BBox[1])
@@ -119,8 +119,8 @@ def _execute_job(jid:str) -> None:
                     plt.title('Cases over Time')
                 else:
                     plt.title(f'Cases from {start_string} to {end_string}')
-                plt.savefig('plot.png') # temporarily saves in worker directory
-                image_dict = upload_image('plot.png')
+                plt.savefig('src/plot.png') # temporarily saves in worker directory
+                image_dict = upload_image('src/plot.png')
                 if image_dict:
                     update_job_status(jid, 'completed', image_dict)
                 else:
@@ -165,7 +165,7 @@ def _execute_job(jid:str) -> None:
                     except:
                         continue
                 BBox = (-98.9,-97.0, 30.0, 31.1)
-                mp = plt.imread('map.png')
+                mp = plt.imread('src/map.png')
                 fig, ax = plt.subplots()
                 counts, xedges, yedges, im = ax.hist2d(lons, lats, zorder=1, alpha=0.5, cmin=1, \
                         bins=[int((BBox[1]-BBox[0])/0.01), \
@@ -180,9 +180,9 @@ def _execute_job(jid:str) -> None:
                     plt.title('Cases over Time')
                 else:
                     plt.title(f'Cases from {start_string} to {end_string}')
-                plt.savefig('plot.png') # temporarily saves in worker directory
+                plt.savefig('src/plot.png') # temporarily saves in worker directory
                 # now upload image to imagur, then update job status and return
-                image_dict = upload_image('plot.png')
+                image_dict = upload_image('src/plot.png')
                 if image_dict:
                     update_job_status(jid, 'completed', image_dict)
                 else:
